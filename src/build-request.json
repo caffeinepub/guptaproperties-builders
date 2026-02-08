@@ -1,0 +1,120 @@
+{
+  "kind": "build_request",
+  "title": "Fix bootstrap admin access so /admin recognizes the bootstrap Principal after login",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-47",
+      "text": "Update the backend canister (backend/main.mo) to implement the exact admin authorization APIs that the current frontend calls, so admin status can be determined correctly after Internet Identity login.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "i dont get admin still"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The backend exposes a public query method with the exact name/signature: `public query ({ caller }) func isCallerAdmin() : async Bool`.",
+        "The backend exposes a public shared method with the exact name/signature: `public shared ({ caller }) func assignCallerUserRole(targetUser : Principal, role : UserRole) : async ()`.",
+        "The backend exposes a public shared method with the exact name/signature: `public shared ({ caller }) func _initializeAccessControlWithSecret(secret : Text) : async ()`.",
+        "Calling `actor._initializeAccessControlWithSecret(\"\")` from the frontend succeeds (does not trap) and does not remove/override any existing principal-based role assignments."
+      ]
+    },
+    {
+      "id": "REQ-48",
+      "text": "Ensure the bootstrap admin Principal ID `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is automatically granted admin privileges on canister install and after upgrade, so logging in with that Principal reliably returns `true` from `isCallerAdmin()`.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "i dont get admin still"
+        ]
+      },
+      "acceptanceCriteria": [
+        "After a fresh deploy, when the caller Principal is `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae`, `isCallerAdmin()` returns `true`.",
+        "After an upgrade (redeploy/upgrade flow), the same bootstrap Principal still gets `isCallerAdmin()` = `true` without requiring any manual grant from another admin.",
+        "The bootstrap Principal being admin is additive (it must not depend on any secret token being provided via `_initializeAccessControlWithSecret`)."
+      ]
+    },
+    {
+      "id": "REQ-49",
+      "text": "Persist admin role assignments across canister upgrades using stable storage, and add/adjust conditional migration logic only if the stable state shape must change (per the project migration policy).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "i dont get admin still"
+        ]
+      },
+      "acceptanceCriteria": [
+        "If an admin grants admin to another Principal via `assignCallerUserRole(..., #admin)`, that Principal remains admin after canister upgrade.",
+        "If stable state is changed to support persistent access control/admin roles, a conditional migration is implemented so existing stable data (e.g., existing userProfiles) is preserved during upgrade."
+      ]
+    },
+    {
+      "id": "REQ-50",
+      "text": "Enforce authorization rules and error messaging for role assignment: `assignCallerUserRole` must be admin-only; if a non-admin calls it, the backend must trap with an error message that contains the word \"Unauthorized\".",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "i dont get admin still"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When a non-admin Principal calls `assignCallerUserRole`, the call traps and the error message includes the substring \"Unauthorized\".",
+        "When an admin Principal calls `assignCallerUserRole(target, #admin)` the target becomes admin and `isCallerAdmin()` returns `true` for that target when they call it.",
+        "When an admin Principal calls `assignCallerUserRole(target, #user)` the target is no longer admin and `isCallerAdmin()` returns `false` for that target when they call it."
+      ]
+    },
+    {
+      "id": "REQ-51",
+      "text": "Improve admin troubleshooting UX on the Admin page by showing a clear, user-facing status when admin detection fails due to backend API errors (without requiring any changes to immutable frontend paths).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "i dont get admin still"
+        ]
+      },
+      "acceptanceCriteria": [
+        "On `/admin`, when the user is logged in but `isCallerAdmin()` cannot be evaluated due to a backend error, the page shows an English message indicating that admin status could not be checked and instructs the user to refresh and/or try again after deployment.",
+        "The Admin page continues to show the existing login prompt when not authenticated, and continues to show Access Denied when `isCallerAdmin()` successfully returns `false`."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor in `backend/main.mo` (no additional backend services).",
+    "Do not modify any files under `frontend/src/components/ui` (read-only components must be composed, not edited).",
+    "Do not edit immutable frontend paths: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`. The backend must remain compatible with `useActor.ts` calling `actor._initializeAccessControlWithSecret(adminToken)` where `adminToken` may be an empty string."
+  ],
+  "nonGoals": [
+    "Adding new authentication providers (only Internet Identity is supported).",
+    "Changing site navigation rules (Admin link remains visible only to authenticated admins).",
+    "Implementing any new non-admin features unrelated to admin authorization."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
+  }
+}

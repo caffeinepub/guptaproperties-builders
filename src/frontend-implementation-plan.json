@@ -1,0 +1,32 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Admin page: surface backend admin-check failures after Internet Identity login",
+  "requirements": [
+    {
+      "id": "REQ-51",
+      "summary": "Show a clear, user-facing error state on /admin when admin detection cannot be evaluated due to backend API errors, while keeping existing unauthenticated and non-admin flows unchanged.",
+      "acceptanceCriteria": [
+        "On `/admin`, when the user is logged in but `isCallerAdmin()` cannot be evaluated due to a backend error, the page shows an English message indicating that admin status could not be checked and instructs the user to refresh and/or try again after deployment.",
+        "The Admin page continues to show the existing login prompt when not authenticated, and continues to show Access Denied when `isCallerAdmin()` successfully returns `false`."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Update `useIsCallerAdmin` to stop swallowing backend failures (do not convert errors into `false`), so the UI can distinguish `false` (access denied) from a backend/API error; keep query keyed by principal and with retry disabled to avoid noisy repeated failures."
+        },
+        {
+          "path": "frontend/src/pages/AdminPage.tsx",
+          "operation": "modify",
+          "description": "Adjust /admin gating to handle three authenticated states: (1) admin check error => show a user-facing troubleshooting message with a refresh/try-again action, using existing shadcn-ui `Alert`/`Button` composition (verify the component's usage instructions before implementing); (2) admin check succeeds and isAdmin=false => keep existing Access Denied UI; (3) admin check succeeds and isAdmin=true => keep existing admin panel UI; preserve the current unauthenticated login prompt unchanged."
+        },
+        {
+          "path": "frontend/src/components/auth/BootstrapAdminHelper.tsx",
+          "operation": "modify",
+          "description": "Add handling for admin-check error state from `useIsCallerAdmin` so the helper does not misleadingly imply the user is non-admin when the backend check failed; display a concise guidance message to refresh and/or retry after deployment using existing shadcn-ui `Alert` composition (verify the component's usage instructions before implementing)."
+        }
+      ]
+    }
+  ]
+}

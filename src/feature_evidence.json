@@ -1,0 +1,26 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-improve-admin-troubleshooting-ux-on-the-admin-page-by-showing-a-clear-user-facing-status-when-admin-detection-fails-due-to-backend-api-errors-without-requiring-any-changes-to-immutable-frontend-paths",
+      "featureTitle": "Improve admin troubleshooting UX on the Admin page by showing a clear, user-facing status when admin detection fails due to backend API errors (without requiring any changes to immutable frontend paths).",
+      "files": [
+        "frontend/src/components/auth/BootstrapAdminHelper.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/AdminPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-51"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

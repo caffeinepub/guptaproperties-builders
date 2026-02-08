@@ -1,0 +1,73 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-08T13:11:25.165Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 5,
+    "implemented": 1,
+    "items": [
+      {
+        "id": "REQ-47",
+        "summary": "Update the backend canister (backend/main.mo) to implement the exact admin authorization APIs that the current frontend calls, so admin status can be determined correctly after Internet Identity login.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-48",
+        "summary": "Ensure the bootstrap admin Principal ID `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is automatically granted admin privileges on canister install and after upgrade, so logging in with that Principal reliably returns `true` from `isCallerAdmin()`.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-49",
+        "summary": "Persist admin role assignments across canister upgrades using stable storage, and add/adjust conditional migration logic only if the stable state shape must change (per the project migration policy).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-50",
+        "summary": "Enforce authorization rules and error messaging for role assignment: `assignCallerUserRole` must be admin-only; if a non-admin calls it, the backend must trap with an error message that contains the word \"Unauthorized\".",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-51",
+        "summary": "Improve admin troubleshooting UX on the Admin page by showing a clear, user-facing status when admin detection fails due to backend API errors (without requiring any changes to immutable frontend paths).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/AdminPage.tsx",
+          "frontend/src/components/auth/BootstrapAdminHelper.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/AdminPage.tsx",
+          "frontend/src/components/auth/BootstrapAdminHelper.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/components/auth/BootstrapAdminHelper.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/AdminPage.tsx",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-08T13:11:25.160Z",
+  "summary": "Frontend adds improved admin-status error handling on /admin and introduces a BootstrapAdminHelper UI. Backend changes add AccessControl/MixinAuthorization wiring and a migration stub, but the diff does not show the required public admin-authorization APIs, bootstrap-admin auto-grant behavior, or stable persistence for role assignments.",
+  "missing_requirements": [
+    {
+      "id": "REQ-47",
+      "requirement": "Backend exposes the exact admin authorization APIs used by the frontend: `isCallerAdmin` (query), `assignCallerUserRole` (shared), `_initializeAccessControlWithSecret` (shared), and calling `_initializeAccessControlWithSecret(\"\")` must succeed without overriding existing principal-role assignments.",
+      "reason": "In the shown `backend/main.mo` diff, none of the required methods are present. The actor only shows profile-related methods and includes a mixin, but the required exported functions/signatures are not evidenced in the diff summary.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-48",
+      "requirement": "Bootstrap admin Principal `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is automatically granted admin on install and after upgrade (additive; not dependent on secret token).",
+      "reason": "A `BOOTSTRAP_ADMIN` constant is defined, but the diff summary does not show any logic that assigns admin privileges to it on install/upgrade or that makes `isCallerAdmin()` return true for that principal.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-49",
+      "requirement": "Persist admin role assignments across upgrades using stable storage, with conditional migration if stable state shape changes.",
+      "reason": "The access control state is initialized as a non-stable `let accessControlState = AccessControl.initState();` and there is no evidenced stable variable for role assignments. The added migration module returns `{}` and does not show preserving/migrating role assignment data.",
+      "evidence": [
+        "backend/main.mo",
+        "backend/migration.mo"
+      ]
+    },
+    {
+      "id": "REQ-50",
+      "requirement": "`assignCallerUserRole` is admin-only; non-admin calls must trap with an error message containing \"Unauthorized\"; admin can grant/revoke admin via `#admin`/`#user` affecting `isCallerAdmin()` accordingly.",
+      "reason": "The diff summary does not show any implementation of `assignCallerUserRole`, so the required authorization enforcement and error messaging cannot be confirmed as implemented.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Added a BootstrapAdminHelper UI card that displays the bootstrap principal ID and extra guidance/dismiss controls beyond the specified /admin error message requirement.",
+      "reason": "REQ-51 asks to show a clear message when admin detection fails due to backend errors; it does not request a dedicated helper component that always shows bootstrap principal information and additional admin-access guidance UI.",
+      "evidence": [
+        "frontend/src/components/auth/BootstrapAdminHelper.tsx",
+        "frontend/src/pages/AdminPage.tsx"
+      ]
+    }
+  ],
+  "confidence": 0.78,
+  "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/components/auth/BootstrapAdminHelper.tsx",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/AdminPage.tsx",
+    "project_state.json"
+  ]
+}

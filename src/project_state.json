@@ -1,0 +1,497 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 25,
+  "summary": "Website for real estate business GuptaProperties&Builders with 2 pages (Homepage + Properties listings with photos), prominent contact/social buttons (tap-to-call, Google Maps, YouTube, Facebook, Instagram), plus a simple inquiries system (visitor inquiry form). Add a dedicated admin-only page for admin management/review features; keep the Inquiries page visitor-only for submitting inquiries including which flat/house they want. Site should be easy to transfer to Google Sites.",
+  "architectural_notes": [
+    "Design/content structure should be compatible with later transfer to Google Sites (simple layout, portable content/assets).",
+    "Define an admin authorization model for owner-only actions (e.g., add/edit/remove properties) and provide an in-app/admin flow to grant/revoke admin access.",
+    "Grant admin access to user Principal: enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae",
+    "Admin access is controlled via Internet Identity + stored admin Principal IDs (no admin-token query parameter is used/required).",
+    "Add a dedicated admin-only route/page (e.g., /admin) gated by admin authorization; keep /inquiries as a visitor-facing inquiry submission page only."
+  ],
+  "known_issues": [
+    "Admin access grant for Principal \"enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae\" may not have been applied due to a failed build/deploy; user requested to re-apply admin access.",
+    "User still does not have admin access for Principal \"enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae\"; attempted rebuild/redeploy to re-apply admin fix failed with \"AI couldn't implement that\" error.",
+    "User requested to rerun the admin-fix build/redeploy again to apply the bootstrap admin role; outcome not yet confirmed.",
+    "Repeated attempts to build/redeploy the admin-backend fix are failing with \"AI couldn't process/implement\" errors; admin system changes have not been applied yet.",
+    "User again requested to grant admin access to Principal \"enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae\" (make this user admin).",
+    "After deployment \"Version 11\", user reports they still do not get admin access when logging in and attempting to open /admin (bootstrap admin principal not being recognized/applied yet)."
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-create-a-2-page-website-with-a-persistent-header-navigation-for-home-and-properties-branded-for-guptaproperties-builders",
+      "title": "Create a 2-page website with a persistent header navigation for “Home” and “Properties”, branded for “GuptaProperties&Builders”.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-home-page-display-the-business-contact-details-exactly-as-provided-company-name-full-address-and-phone-number",
+      "title": "On the Home page, display the business contact details exactly as provided: company name, full address, and phone number.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-prominent-clickable-buttons-links-for-google-maps-location-youtube-channel-facebook-page-instagram-account-and-tap-to-call-phone-link-using-the-exact-urls-provided-by-the-user",
+      "title": "Add prominent clickable buttons/links for: Google Maps location, YouTube channel, Facebook page, Instagram account, and tap-to-call phone link, using the exact URLs provided by the user.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-properties-page-to-show-a-list-grid-of-property-cards-each-supporting-title-price-optional-location-address-optional-short-description-and-multiple-pictures",
+      "title": "Implement the Properties page to show a list/grid of property cards, each supporting: title, price (optional), location/address (optional), short description, and multiple pictures.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-provide-an-in-site-way-to-add-edit-remove-property-listings-and-attach-pictures-to-a-listing-intended-for-the-site-owner-no-login-required-store-listings-locally-in-the-browser-so-changes-persist-after-refresh",
+      "title": "Provide an in-site way to add/edit/remove property listings and attach pictures to a listing, intended for the site owner (no login required). Store listings locally in the browser so changes persist after refresh.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-the-site-s-content-easy-to-transfer-to-google-sites-by-keeping-business-info-and-default-property-seed-data-in-a-small-clearly-identifiable-frontend-configuration-data-file-and-avoiding-any-required-backend-dependencies-for-core-functionality",
+      "title": "Make the site’s content easy to transfer to Google Sites by keeping business info and default property seed data in a small, clearly identifiable frontend configuration/data file and avoiding any required backend dependencies for core functionality.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-coherent-real-estate-visual-theme-distinct-style-guide-across-both-pages-neutral-warm-palette-avoid-blue-purple-clean-typography-consistent-spacing-and-a-professional-hero-section-on-the-home-page",
+      "title": "Apply a coherent real-estate visual theme (distinct style guide) across both pages: neutral/warm palette (avoid blue/purple), clean typography, consistent spacing, and a professional hero section on the Home page.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-basic-seo-and-shareability-essentials-meaningful-page-titles-for-home-and-properties-and-a-simple-footer-with-the-business-name-address-and-phone-number",
+      "title": "Add basic SEO and shareability essentials: meaningful page titles for Home and Properties and a simple footer with the business name, address, and phone number.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-visitor-facing-inquiry-form-so-website-visitors-can-submit-inquiries-from-the-site",
+      "title": "Add a visitor-facing inquiry form so website visitors can submit inquiries from the site.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-in-site-owner-facing-view-to-review-submitted-inquiries",
+      "title": "Add an in-site owner-facing view to review submitted inquiries.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-wire-the-inquiry-form-submission-and-inquiries-list-ui-to-the-backend-actor-using-react-query-for-loading-error-and-success-states",
+      "title": "Wire the inquiry form submission and inquiries list UI to the backend actor using React Query for loading, error, and success states.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-backend-support-for-admin-management-so-an-admin-can-grant-or-revoke-admin-access-for-another-user-and-the-frontend-can-query-whether-the-current-caller-is-an-admin",
+      "title": "Add backend support for admin management so an admin can grant or revoke admin access for another user, and the frontend can query whether the current caller is an admin.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-move-owner-managed-custom-property-listings-persistence-from-browser-localstorage-to-the-backend-canister-and-enforce-that-only-admins-can-create-edit-or-delete-those-custom-property-listings",
+      "title": "Move owner-managed (custom) property listings persistence from browser localStorage to the backend canister and enforce that only admins can create, edit, or delete those custom property listings.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-properties-page-ui-so-only-admins-can-access-property-management-controls-add-property-edit-delete-and-non-admins-see-a-read-only-browsing-experience",
+      "title": "Update the Properties page UI so only admins can access property management controls (Add Property, Edit, Delete), and non-admins see a read-only browsing experience.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-provide-an-admin-only-ui-to-grant-and-revoke-admin-access-for-other-users-including-guidance-on-how-to-obtain-the-target-user-principal",
+      "title": "Provide an admin-only UI to grant and revoke admin access for other users, including guidance on how to obtain the target user Principal.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-small-authenticated-my-principal-display-copy-control-in-the-frontend-so-users-can-easily-share-their-principal-with-an-admin-who-will-grant-them-admin-access",
+      "title": "Add a small authenticated \"My Principal\" display/copy control in the frontend so users can easily share their Principal with an admin who will grant them admin access.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-frontend-bootstrap-admin-helper-ui-to-remove-any-mention-of-an-admin-token-url-parameter-and-the-caffeineadmintoken-your-admin-token-template-replace-it-with-accurate-english-instructions-aligned-with-the-app-s-real-auth-model-internet-identity-principal-based-admin-roles",
+      "title": "Update the frontend Bootstrap Admin helper UI to remove any mention of an \"admin token\" URL parameter and the `?caffeineAdminToken=YOUR_ADMIN_TOKEN` template. Replace it with accurate, English instructions aligned with the app’s real auth model (Internet Identity + Principal-based admin roles).",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-admin-only-ui-sections-that-depend-on-useiscalleradmin-can-become-visible-after-login-by-guaranteeing-the-admin-status-query-can-successfully-reach-the-backend-method-and-return-a-correct-boolean-no-method-name-mismatch-between-frontend-and-backend",
+      "title": "Ensure admin-only UI sections that depend on `useIsCallerAdmin()` can become visible after login by guaranteeing the admin-status query can successfully reach the backend method and return a correct boolean (no method-name mismatch between frontend and backend).",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-simplify-and-de-confuse-the-admin-bootstrap-ux-copy-in-frontend-src-components-auth-bootstrapadminhelper-tsx-so-it-clearly-states-that-admin-access-is-determined-by-principal-id-the-bootstrap-principal-becomes-admin-automatically-after-deploy-upgrade-and-other-users-must-share-their-principal-id-with-an-existing-admin-for-granting-remove-or-reword-any-ui-that-suggests-the-bootstrap-principal-needs-to-be-granted-admin-via-a-button-when-no-existing-admin-is-present",
+      "title": "Simplify and de-confuse the admin bootstrap UX copy in frontend/src/components/auth/BootstrapAdminHelper.tsx so it clearly states that admin access is determined by Principal ID: the bootstrap principal becomes admin automatically after deploy/upgrade, and other users must share their Principal ID with an existing admin for granting. Remove or reword any UI that suggests the bootstrap principal needs to be granted admin via a button when no existing admin is present.",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-dedicated-admin-page-route-at-admin-that-is-only-accessible-to-logged-in-admins-if-the-user-is-not-logged-in-show-a-login-prompt-if-the-user-is-logged-in-but-not-an-admin-show-an-access-denied-message-and-do-not-render-any-admin-tools",
+      "title": "Add a dedicated Admin page route at `/admin` that is only accessible to logged-in admins. If the user is not logged in, show a login prompt; if the user is logged in but not an admin, show an access-denied message and do not render any admin tools.",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-move-all-admin-only-content-currently-shown-on-frontend-src-pages-inquiriespage-tsx-adminmanagementpanel-and-the-admin-only-inquiry-review-list-section-into-the-new-admin-page-so-that-the-inquiries-page-is-no-longer-an-admin-panel",
+      "title": "Move all admin-only content currently shown on `frontend/src/pages/InquiriesPage.tsx` (AdminManagementPanel and the admin-only inquiry review/list section) into the new `/admin` page so that the Inquiries page is no longer an admin panel.",
+      "reqIds": [
+        "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-inquiries-page-inquiries-to-be-visitor-facing-for-submitting-inquiries-not-an-admin-dashboard-it-must-prominently-show-the-inquiry-submission-form-and-it-must-not-require-internet-identity-login-just-to-send-an-inquiry",
+      "title": "Update the Inquiries page (`/inquiries`) to be visitor-facing for submitting inquiries (not an admin dashboard). It must prominently show the inquiry submission form, and it must not require Internet Identity login just to send an inquiry.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-enhance-the-inquiry-form-to-include-a-required-field-for-which-flat-house-property-the-visitor-wants-property-interest-this-field-must-be-stored-in-the-frontend-inquiry-object-and-displayed-in-the-admin-inquiries-list-review-ui",
+      "title": "Enhance the inquiry form to include a required field for which flat/house/property the visitor wants (property interest). This field must be stored in the frontend inquiry object and displayed in the admin inquiries list/review UI.",
+      "reqIds": [
+        "REQ-40"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-site-navigation-to-include-an-admin-link-that-is-only-visible-to-authenticated-admins-and-routes-to-admin-do-not-show-the-admin-link-to-non-admins",
+      "title": "Update the site navigation to include an “Admin” link that is only visible to authenticated admins and routes to `/admin`. Do not show the Admin link to non-admins.",
+      "reqIds": [
+        "REQ-41"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-improve-admin-troubleshooting-ux-on-the-admin-page-by-showing-a-clear-user-facing-status-when-admin-detection-fails-due-to-backend-api-errors-without-requiring-any-changes-to-immutable-frontend-paths",
+      "title": "Improve admin troubleshooting UX on the Admin page by showing a clear, user-facing status when admin detection fails due to backend API errors (without requiring any changes to immutable frontend paths).",
+      "reqIds": [
+        "REQ-51"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create 2-page website (Homepage + Properties page) for GuptaProperties&Builders",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add business info and tap-to-call phone button (tel:+919868599938)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add clickable social/location buttons: Google Maps, YouTube, Facebook, Instagram",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Properties page: ability to list properties and add pictures for each listing",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Build site in a way that can be transferred to Google Sites later",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Add a simple inquiries system (visitor inquiry form) so visitors can send inquiries directly",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Persist submitted inquiries in the backend canister so inquiries are stored across devices/sessions and survive page refresh.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Add admin access control for managing property listings, including a way to grant/revoke admin to other users",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Update backend stable state and migrations (if needed) to preserve existing inquiry data while adding persistent storage for admins and backend-managed properties.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Ensure the Principal ID \"enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae\" is granted admin permissions in the backend authorization system so that user can access all admin-only features (e.g., admin property management and viewing inquiries) after deploying/upgrading the canister.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-17",
+      "summary": "Ensure the Principal \"enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae\" is granted admin permissions in the backend authorization system automatically after deploy/upgrade, so the user can access all admin-only features again without relying on an existing admin to grant access.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-18",
+      "summary": "Implement backend admin authorization APIs expected by the frontend, including: (1) a boolean method to check whether the current caller is an admin, and (2) an admin-only method to assign a user role (at minimum: admin and user) to a target Principal. Ensure unauthorized callers receive a clear trap error message containing the word \"Unauthorized\".",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-19",
+      "summary": "Ensure the Principal \"enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae\" is automatically granted admin permissions in the backend authorization system after deploy/upgrade (bootstrap admin), so that this user can access all admin-only features without requiring any pre-existing admin to grant access.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-20",
+      "summary": "Persist admin role state across canister upgrades using stable storage. If introducing or changing stable state, add/adjust conditional migration logic according to the project migration policy so existing stable data (if any) is preserved during upgrade.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-21",
+      "summary": "Update the backend actor (backend/main.mo) to expose the exact admin APIs expected by the current frontend: a query method named `isCallerAdmin()` returning whether the caller is an admin, and a shared method named `assignCallerUserRole(targetUser : Principal, role : UserRole)` that assigns a role to the target principal and traps unauthorized callers with an error message containing the word \"Unauthorized\".",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-22",
+      "summary": "Ensure the bootstrap admin principal `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is automatically granted the admin role on canister install and after upgrade, and ensure admin role state persists across upgrades via stable storage (add/adjust conditional migration logic per the project migration policy if stable state shape changes).",
+      "reqIds": [
+        "REQ-26"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-23",
+      "summary": "Make backend authorization initialization compatible with the existing immutable frontend actor bootstrap call that invokes `actor._initializeAccessControlWithSecret(adminToken)` (frontend/src/hooks/useActor.ts). Specifically, ensure `_initializeAccessControlWithSecret` exists and is safe when the token is an empty string, and that it does not remove or override principal-based admin roles (including the bootstrap admin).",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-24",
+      "summary": "Add per-property \"View Details\" button below each property listing for admins, with ability to upload/add more interior/building photos",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-25",
+      "summary": "Update the backend actor (backend/main.mo) to expose the exact admin authorization APIs expected by the current frontend: (1) a query method `isCallerAdmin()` that returns a boolean, and (2) an admin-only shared method `assignCallerUserRole(targetUser : Principal, role : UserRole)` that assigns the role for the target principal. If a non-admin calls `assignCallerUserRole`, the backend must trap with an error message containing the word \"Unauthorized\".",
+      "reqIds": [
+        "REQ-29"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-26",
+      "summary": "Ensure the Principal ID \"enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae\" is automatically granted admin access in the backend on canister install and remains admin after canister upgrade (bootstrap admin), so the user can become admin simply by logging in with that Principal ID.",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "Persist admin role assignments across canister upgrades using stable storage. If introducing or changing stable state shape, add/adjust conditional migration logic according to the project migration policy so any existing stable data is preserved during upgrade.",
+      "reqIds": [
+        "REQ-31"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-28",
+      "summary": "Make backend authorization initialization compatible with the existing frontend actor bootstrap call in frontend/src/hooks/useActor.ts that invokes `actor._initializeAccessControlWithSecret(adminToken)` where `adminToken` may be an empty string. The backend must provide `_initializeAccessControlWithSecret` and ensure it is safe when the token is empty, and it must not remove or override Principal-based admin roles (including the bootstrap admin).",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "Update the backend actor (backend/main.mo) to support principal-based admin authorization required by the current frontend by implementing the following public methods with these exact names/signatures:\n- `public query ({ caller }) func isCallerAdmin() : async Bool`\n- `public shared ({ caller }) func assignCallerUserRole(targetUser : Principal, role : UserRole) : async ()`\n- `public shared ({ caller }) func _initializeAccessControlWithSecret(secret : Text) : async ()`\n\n`assignCallerUserRole` must be admin-only; if a non-admin calls it, the method must trap with an error message that contains the word \"Unauthorized\".\n\n`_initializeAccessControlWithSecret` must be safe to call with an empty string (the frontend may pass an empty value) and must not remove or override any existing principal-based admin roles.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Ensure the Principal ID `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is automatically granted admin access (bootstrap admin) on canister install and after canister upgrade, so that logging in with this Principal restores access to all admin-only UI features (e.g., property management and inquiries review) without needing another admin to grant it.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Persist admin role assignments across canister upgrades using stable storage. If introducing or changing stable state shape to store admin roles, add/adjust conditional migration logic according to the project migration policy so existing stable data (e.g., current stable user profile data) is preserved during upgrade.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-32",
+      "summary": "Create a dedicated admin-only page (e.g., /admin) that only logged-in admins can open; move the admin management panel off the Inquiries page to this admin page.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-33",
+      "summary": "Update the Inquiries page to be visitor-only (no admin panel) and enhance the inquiry form to include which flat/house/property the visitor wants (property interest field).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-34",
+      "summary": "Update the backend canister (backend/main.mo) to expose the exact admin APIs expected by the current frontend and make them functional: implement `public query ({ caller }) func isCallerAdmin() : async Bool`, implement `public shared ({ caller }) func assignCallerUserRole(targetUser : Principal, role : UserRole) : async ()` as an admin-only method, and implement `public shared ({ caller }) func _initializeAccessControlWithSecret(secret : Text) : async ()` so the existing frontend call in `frontend/src/hooks/useActor.ts` succeeds.",
+      "reqIds": [
+        "REQ-42"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-35",
+      "summary": "Ensure the bootstrap admin principal `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is automatically granted the admin role on canister install and after canister upgrade, so logging in with this Principal restores access to admin-only UI features without requiring another admin to grant it.",
+      "reqIds": [
+        "REQ-43"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-36",
+      "summary": "Persist admin role assignments across canister upgrades using stable storage. If changing or adding stable state to store access-control/admin-role data, add/adjust conditional migration logic according to the project migration policy so any existing stable data (including existing `userProfiles`) is preserved during upgrade.",
+      "reqIds": [
+        "REQ-44"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-37",
+      "summary": "Enforce authorization rules and error messaging for admin role assignment: `assignCallerUserRole` must trap for non-admin callers with a clear error message that contains the word \"Unauthorized\", and must allow admin callers to grant `#admin` and revoke back to `#user` for the target principal.",
+      "reqIds": [
+        "REQ-45"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-38",
+      "summary": "Make `_initializeAccessControlWithSecret(secret : Text)` safe and non-destructive: it must not remove or override any principal-based admin roles (including the bootstrap admin), and it must behave safely when `secret` is an empty string (the frontend may pass an empty value).",
+      "reqIds": [
+        "REQ-46"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-39",
+      "summary": "Update the backend canister (backend/main.mo) to implement the exact admin authorization APIs that the current frontend calls, so admin status can be determined correctly after Internet Identity login.",
+      "reqIds": [
+        "REQ-47"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-40",
+      "summary": "Ensure the bootstrap admin Principal ID `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is automatically granted admin privileges on canister install and after upgrade, so logging in with that Principal reliably returns `true` from `isCallerAdmin()`.",
+      "reqIds": [
+        "REQ-48"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-41",
+      "summary": "Persist admin role assignments across canister upgrades using stable storage, and add/adjust conditional migration logic only if the stable state shape must change (per the project migration policy).",
+      "reqIds": [
+        "REQ-49"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-42",
+      "summary": "Enforce authorization rules and error messaging for role assignment: `assignCallerUserRole` must be admin-only; if a non-admin calls it, the backend must trap with an error message that contains the word \"Unauthorized\".",
+      "reqIds": [
+        "REQ-50"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "GuptaProperties&Builders",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
