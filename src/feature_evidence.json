@@ -2,12 +2,13 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-improve-admin-troubleshooting-ux-on-the-admin-page-by-showing-a-clear-user-facing-status-when-admin-detection-fails-due-to-backend-api-errors-without-requiring-any-changes-to-immutable-frontend-paths",
-      "featureTitle": "Improve admin troubleshooting UX on the Admin page by showing a clear, user-facing status when admin detection fails due to backend API errors (without requiring any changes to immutable frontend paths).",
+      "featureId": "feature-fix-the-failed-to-create-property-flow-so-users-see-the-real-underlying-reason-e-g-not-an-admin-request-too-large-invalid-input-and-ensure-the-ui-guides-the-user-to-resolve-it",
+      "featureTitle": "Fix the “Failed to create property” flow so users see the real underlying reason (e.g., not an admin, request too large, invalid input), and ensure the UI guides the user to resolve it.",
       "files": [
-        "frontend/src/components/auth/BootstrapAdminHelper.tsx",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/AdminPage.tsx"
+        "frontend/src/components/properties/InlinePropertyForm.tsx",
+        "frontend/src/hooks/usePropertyListings.ts",
+        "frontend/src/pages/PropertiesPage.tsx",
+        "frontend/src/utils/icError.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -18,7 +19,52 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-51"
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-make-video-attachment-for-property-listings-work-end-to-end-by-supporting-youtube-urls-reliably-and-preventing-video-uploads-that-exceed-internet-computer-request-limits-with-clear-user-facing-validation-and-messaging",
+      "featureTitle": "Make video attachment for property listings work end-to-end by supporting YouTube URLs reliably and preventing video uploads that exceed Internet Computer request limits, with clear user-facing validation and messaging.",
+      "files": [
+        "frontend/src/components/properties/InlinePropertyForm.tsx",
+        "frontend/src/components/properties/PropertyCard.tsx",
+        "frontend/src/hooks/usePropertyListings.ts",
+        "frontend/src/utils/videoFileToDataUrl.ts",
+        "frontend/src/utils/youtube.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-property-crud-is-usable-by-admins-out-of-the-box-by-making-the-initial-admin-bootstrap-path-clear-and-functional-so-authorized-users-can-create-listings-without-hitting-authorization-traps",
+      "featureTitle": "Ensure property CRUD is usable by admins out of the box by making the initial admin bootstrap path clear and functional, so authorized users can create listings without hitting authorization traps.",
+      "files": [
+        "frontend/src/components/auth/BootstrapAdminHelper.tsx",
+        "frontend/src/components/properties/PropertyList.tsx",
+        "frontend/src/hooks/usePropertyListings.ts",
+        "frontend/src/pages/PropertiesPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
       ],
       "confidence": "high"
     }

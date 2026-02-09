@@ -1,56 +1,66 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-08T13:11:25.165Z",
+  "generatedAt": "2026-02-09T16:31:11.542Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
-        "id": "REQ-47",
-        "summary": "Update the backend canister (backend/main.mo) to implement the exact admin authorization APIs that the current frontend calls, so admin status can be determined correctly after Internet Identity login.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-48",
-        "summary": "Ensure the bootstrap admin Principal ID `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is automatically granted admin privileges on canister install and after upgrade, so logging in with that Principal reliably returns `true` from `isCallerAdmin()`.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-49",
-        "summary": "Persist admin role assignments across canister upgrades using stable storage, and add/adjust conditional migration logic only if the stable state shape must change (per the project migration policy).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-50",
-        "summary": "Enforce authorization rules and error messaging for role assignment: `assignCallerUserRole` must be admin-only; if a non-admin calls it, the backend must trap with an error message that contains the word \"Unauthorized\".",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-51",
-        "summary": "Improve admin troubleshooting UX on the Admin page by showing a clear, user-facing status when admin detection fails due to backend API errors (without requiring any changes to immutable frontend paths).",
+        "id": "REQ-1",
+        "summary": "Fix the “Failed to create property” flow so users see the real underlying reason (e.g., not an admin, request too large, invalid input), and ensure the UI guides the user to resolve it.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/AdminPage.tsx",
-          "frontend/src/components/auth/BootstrapAdminHelper.tsx"
+          "frontend/src/utils/icError.ts",
+          "frontend/src/hooks/usePropertyListings.ts",
+          "frontend/src/components/properties/InlinePropertyForm.tsx",
+          "frontend/src/pages/PropertiesPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/pages/AdminPage.tsx",
-          "frontend/src/components/auth/BootstrapAdminHelper.tsx"
+          "frontend/src/utils/icError.ts",
+          "frontend/src/hooks/usePropertyListings.ts",
+          "frontend/src/components/properties/InlinePropertyForm.tsx",
+          "frontend/src/pages/PropertiesPage.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Make video attachment for property listings work end-to-end by supporting YouTube URLs reliably and preventing video uploads that exceed Internet Computer request limits, with clear user-facing validation and messaging.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/utils/videoFileToDataUrl.ts",
+          "frontend/src/components/properties/InlinePropertyForm.tsx",
+          "frontend/src/utils/youtube.ts",
+          "frontend/src/components/properties/PropertyCard.tsx",
+          "frontend/src/hooks/usePropertyListings.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/utils/videoFileToDataUrl.ts",
+          "frontend/src/components/properties/InlinePropertyForm.tsx",
+          "frontend/src/utils/youtube.ts",
+          "frontend/src/components/properties/PropertyCard.tsx",
+          "frontend/src/hooks/usePropertyListings.ts"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Ensure property CRUD is usable by admins out of the box by making the initial admin bootstrap path clear and functional, so authorized users can create listings without hitting authorization traps.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/PropertiesPage.tsx",
+          "frontend/src/components/auth/BootstrapAdminHelper.tsx",
+          "frontend/src/hooks/usePropertyListings.ts",
+          "frontend/src/components/properties/PropertyList.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/PropertiesPage.tsx",
+          "frontend/src/components/auth/BootstrapAdminHelper.tsx",
+          "frontend/src/hooks/usePropertyListings.ts",
+          "frontend/src/components/properties/PropertyList.tsx"
         ]
       }
     ]
@@ -59,12 +69,23 @@
     "backend/main.mo",
     "backend/migration.mo",
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
     "frontend/src/components/auth/BootstrapAdminHelper.tsx",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/pages/AdminPage.tsx",
+    "frontend/src/components/properties/InlinePropertyForm.tsx",
+    "frontend/src/components/properties/PropertyCard.tsx",
+    "frontend/src/components/properties/PropertyList.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/usePropertyListings.ts",
+    "frontend/src/pages/PropertiesPage.tsx",
+    "frontend/src/utils/icError.ts",
+    "frontend/src/utils/videoFileToDataUrl.ts",
+    "frontend/src/utils/youtube.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

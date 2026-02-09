@@ -1,107 +1,78 @@
 {
   "kind": "build_request",
-  "title": "Fix bootstrap admin access so /admin recognizes the bootstrap Principal after login",
+  "title": "Fix property creation failures and make video support reliable for property listings",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-47",
-      "text": "Update the backend canister (backend/main.mo) to implement the exact admin authorization APIs that the current frontend calls, so admin status can be determined correctly after Internet Identity login.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-last"
-        ],
-        "quotes": [
-          "i dont get admin still"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The backend exposes a public query method with the exact name/signature: `public query ({ caller }) func isCallerAdmin() : async Bool`.",
-        "The backend exposes a public shared method with the exact name/signature: `public shared ({ caller }) func assignCallerUserRole(targetUser : Principal, role : UserRole) : async ()`.",
-        "The backend exposes a public shared method with the exact name/signature: `public shared ({ caller }) func _initializeAccessControlWithSecret(secret : Text) : async ()`.",
-        "Calling `actor._initializeAccessControlWithSecret(\"\")` from the frontend succeeds (does not trap) and does not remove/override any existing principal-based role assignments."
-      ]
-    },
-    {
-      "id": "REQ-48",
-      "text": "Ensure the bootstrap admin Principal ID `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is automatically granted admin privileges on canister install and after upgrade, so logging in with that Principal reliably returns `true` from `isCallerAdmin()`.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-last"
-        ],
-        "quotes": [
-          "i dont get admin still"
-        ]
-      },
-      "acceptanceCriteria": [
-        "After a fresh deploy, when the caller Principal is `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae`, `isCallerAdmin()` returns `true`.",
-        "After an upgrade (redeploy/upgrade flow), the same bootstrap Principal still gets `isCallerAdmin()` = `true` without requiring any manual grant from another admin.",
-        "The bootstrap Principal being admin is additive (it must not depend on any secret token being provided via `_initializeAccessControlWithSecret`)."
-      ]
-    },
-    {
-      "id": "REQ-49",
-      "text": "Persist admin role assignments across canister upgrades using stable storage, and add/adjust conditional migration logic only if the stable state shape must change (per the project migration policy).",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-last"
-        ],
-        "quotes": [
-          "i dont get admin still"
-        ]
-      },
-      "acceptanceCriteria": [
-        "If an admin grants admin to another Principal via `assignCallerUserRole(..., #admin)`, that Principal remains admin after canister upgrade.",
-        "If stable state is changed to support persistent access control/admin roles, a conditional migration is implemented so existing stable data (e.g., existing userProfiles) is preserved during upgrade."
-      ]
-    },
-    {
-      "id": "REQ-50",
-      "text": "Enforce authorization rules and error messaging for role assignment: `assignCallerUserRole` must be admin-only; if a non-admin calls it, the backend must trap with an error message that contains the word \"Unauthorized\".",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-last"
-        ],
-        "quotes": [
-          "i dont get admin still"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When a non-admin Principal calls `assignCallerUserRole`, the call traps and the error message includes the substring \"Unauthorized\".",
-        "When an admin Principal calls `assignCallerUserRole(target, #admin)` the target becomes admin and `isCallerAdmin()` returns `true` for that target when they call it.",
-        "When an admin Principal calls `assignCallerUserRole(target, #user)` the target is no longer admin and `isCallerAdmin()` returns `false` for that target when they call it."
-      ]
-    },
-    {
-      "id": "REQ-51",
-      "text": "Improve admin troubleshooting UX on the Admin page by showing a clear, user-facing status when admin detection fails due to backend API errors (without requiring any changes to immutable frontend paths).",
+      "id": "REQ-1",
+      "text": "Fix the “Failed to create property” flow so users see the real underlying reason (e.g., not an admin, request too large, invalid input), and ensure the UI guides the user to resolve it.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-1"
         ],
         "quotes": [
-          "i dont get admin still"
+          "Fix the error why it coming when I try to list a property",
+          "Failed to create property error coming when I try to list a property"
         ]
       },
       "acceptanceCriteria": [
-        "On `/admin`, when the user is logged in but `isCallerAdmin()` cannot be evaluated due to a backend error, the page shows an English message indicating that admin status could not be checked and instructs the user to refresh and/or try again after deployment.",
-        "The Admin page continues to show the existing login prompt when not authenticated, and continues to show Access Denied when `isCallerAdmin()` successfully returns `false`."
+        "When property creation fails, the UI displays a specific error message that distinguishes at least: (1) permission/admin issue, (2) request too large (payload/video/image too big), and (3) generic backend failure.",
+        "The error message shown to the user must not always be the generic string “Failed to create property. Please try again.” if a more specific reason is available from the canister/agent error.",
+        "The Properties page shows clear next-step guidance when the user is authenticated but not an admin (e.g., “You are logged in but do not have admin access.”)."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Make video attachment for property listings work end-to-end by supporting YouTube URLs reliably and preventing video uploads that exceed Internet Computer request limits, with clear user-facing validation and messaging.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "I can't add video",
+          "Ok create"
+        ]
+      },
+      "acceptanceCriteria": [
+        "In the property create/edit form, adding a valid YouTube URL saves successfully and renders as an embedded video on the property card.",
+        "If a user attempts to upload a video file that is too large to be safely stored/sent (based on the app’s configured limit), the form blocks submission and shows a clear English error explaining the size limit.",
+        "If a user uploads a video file within the configured limit, it saves successfully and plays via an HTML5 <video> element on the property card.",
+        "Backend rejects invalid video values (neither a YouTube URL nor a data:video/* data URL) with a clear trap message; the frontend surfaces this message.",
+        "Backend enforces a maximum allowed size/length for the video text field (and rejects overly large payloads early with a clear trap message)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Ensure property CRUD is usable by admins out of the box by making the initial admin bootstrap path clear and functional, so authorized users can create listings without hitting authorization traps.",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "My website",
+          "I am using you caffeine ai that's your website that you have made"
+        ]
+      },
+      "acceptanceCriteria": [
+        "If the current caller is not an admin, the UI does not present the add/edit/delete controls and instead shows an explanation of why (admin-only).",
+        "If the canister has a configured bootstrap admin Principal (already present in backend), that Principal can create/update/delete properties successfully after logging in with Internet Identity.",
+        "If the current caller triggers an admin-only trap (create/update/delete property), the frontend surfaces a permission-specific error message (not a generic failure)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in `backend/main.mo` (no additional backend services).",
-    "Do not modify any files under `frontend/src/components/ui` (read-only components must be composed, not edited).",
-    "Do not edit immutable frontend paths: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`. The backend must remain compatible with `useActor.ts` calling `actor._initializeAccessControlWithSecret(adminToken)` where `adminToken` may be an empty string."
+    "Backend must remain a single Motoko actor in backend/main.mo; only add backend/migration.mo if a stable-state upgrade is required.",
+    "Do not modify files under frontend/src/components/ui or any paths listed in frontend.immutablePaths.",
+    "Use English for all user-facing UI text.",
+    "Do not add external databases or third-party storage/services for video hosting."
   ],
   "nonGoals": [
-    "Adding new authentication providers (only Internet Identity is supported).",
-    "Changing site navigation rules (Admin link remains visible only to authenticated admins).",
-    "Implementing any new non-admin features unrelated to admin authorization."
+    "Building real-time updates (WebSockets) for new listings.",
+    "Adding third-party authentication providers (only Internet Identity).",
+    "Adding external video hosting/CDN integrations or storing large video files off-canister."
   ],
   "imageRequirements": {
     "required": [],

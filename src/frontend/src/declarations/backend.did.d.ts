@@ -10,6 +10,15 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface Property {
+  'id' : bigint,
+  'title' : string,
+  'video' : [] | [string],
+  'description' : string,
+  'price' : [] | [bigint],
+  'location' : [] | [string],
+  'images' : Array<string>,
+}
 export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
@@ -17,11 +26,37 @@ export type UserRole = { 'admin' : null } |
 export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'createProperty' : ActorMethod<
+    [
+      string,
+      string,
+      [] | [bigint],
+      [] | [string],
+      Array<string>,
+      [] | [string],
+    ],
+    Property
+  >,
+  'deleteProperty' : ActorMethod<[bigint], undefined>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getProperty' : ActorMethod<[bigint], [] | [Property]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'listProperties' : ActorMethod<[], Array<Property>>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'updateProperty' : ActorMethod<
+    [
+      bigint,
+      string,
+      string,
+      [] | [bigint],
+      [] | [string],
+      Array<string>,
+      [] | [string],
+    ],
+    Property
+  >,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

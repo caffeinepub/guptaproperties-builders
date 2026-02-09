@@ -14,10 +14,21 @@ export function useIsCallerAdmin() {
     queryKey: ['isCallerAdmin', principalString],
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      return await actor.isCallerAdmin();
+      try {
+        const result = await actor.isCallerAdmin();
+        return result;
+      } catch (error: any) {
+        // Normalize backend errors to clear English
+        if (error.message?.includes('Unauthorized')) {
+          // Not an error - just not admin
+          return false;
+        }
+        throw error;
+      }
     },
-    enabled: !!actor && !actorFetching,
-    retry: false,
+    enabled: !!actor && !actorFetching && !!identity,
+    retry: 2,
+    retryDelay: 500,
     staleTime: 0, // Always refetch to get latest admin status
   });
 

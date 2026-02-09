@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { businessInfo } from '../../data/siteData';
 import ContactBar from '../layout/ContactBar';
+import HomepageAuthButton from '../auth/HomepageAuthButton';
 
 export default function HeroSection() {
   return (
@@ -23,6 +24,7 @@ export default function HeroSection() {
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <ContactBar />
+              <HomepageAuthButton />
             </div>
           </div>
 

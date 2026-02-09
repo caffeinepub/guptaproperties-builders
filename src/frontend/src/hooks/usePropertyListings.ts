@@ -1,25 +1,127 @@
-import { useMemo } from 'react';
-import { seedProperties } from '../data/siteData';
-import type { Property } from '../types';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useActor } from './useActor';
+import { normalizeICError } from '../utils/icError';
+import type { Property } from '../backend';
 
-// Note: Backend property functionality has been removed
-// This hook only returns seed properties until backend support is restored
-
+// Property Listings Query
 export function usePropertyListings() {
-  const properties = useMemo(() => {
-    return seedProperties;
-  }, []);
+  const { actor, isFetching: actorFetching } = useActor();
+
+  const query = useQuery<Property[]>({
+    queryKey: ['properties'],
+    queryFn: async () => {
+      if (!actor) return [];
+      try {
+        return await actor.listProperties();
+      } catch (error: any) {
+        const normalized = normalizeICError(error);
+        console.error('Error fetching properties:', normalized);
+        throw new Error(normalized.message);
+      }
+    },
+    enabled: !!actor && !actorFetching,
+    retry: 2,
+  });
 
   return {
-    properties,
-    isLoading: false,
-    error: null,
+    properties: query.data || [],
+    isLoading: actorFetching || query.isLoading,
+    error: query.error ? (query.error as Error).message : null,
   };
 }
 
-export function useIsCustomProperty() {
-  return (propertyId: string) => {
-    // All properties are now seed properties
-    return false;
-  };
+// Create Property Mutation
+export function useCreateProperty() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      title: string;
+      description: string;
+      price: bigint | null;
+      location: string | null;
+      images: string[];
+      video: string | null;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      try {
+        return await actor.createProperty(
+          data.title,
+          data.description,
+          data.price,
+          data.location,
+          data.images,
+          data.video
+        );
+      } catch (error: any) {
+        const normalized = normalizeICError(error);
+        console.error('Error creating property:', normalized);
+        throw new Error(normalized.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['properties'] });
+    },
+  });
+}
+
+// Update Property Mutation
+export function useUpdateProperty() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      id: bigint;
+      title: string;
+      description: string;
+      price: bigint | null;
+      location: string | null;
+      images: string[];
+      video: string | null;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      try {
+        return await actor.updateProperty(
+          data.id,
+          data.title,
+          data.description,
+          data.price,
+          data.location,
+          data.images,
+          data.video
+        );
+      } catch (error: any) {
+        const normalized = normalizeICError(error);
+        console.error('Error updating property:', normalized);
+        throw new Error(normalized.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['properties'] });
+    },
+  });
+}
+
+// Delete Property Mutation
+export function useDeleteProperty() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error('Actor not available');
+      try {
+        await actor.deleteProperty(id);
+      } catch (error: any) {
+        const normalized = normalizeICError(error);
+        console.error('Error deleting property:', normalized);
+        throw new Error(normalized.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['properties'] });
+    },
+  });
 }

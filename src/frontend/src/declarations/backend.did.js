@@ -13,20 +13,57 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const Property = IDL.Record({
+  'id' : IDL.Nat,
+  'title' : IDL.Text,
+  'video' : IDL.Opt(IDL.Text),
+  'description' : IDL.Text,
+  'price' : IDL.Opt(IDL.Nat),
+  'location' : IDL.Opt(IDL.Text),
+  'images' : IDL.Vec(IDL.Text),
+});
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 
 export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'createProperty' : IDL.Func(
+      [
+        IDL.Text,
+        IDL.Text,
+        IDL.Opt(IDL.Nat),
+        IDL.Opt(IDL.Text),
+        IDL.Vec(IDL.Text),
+        IDL.Opt(IDL.Text),
+      ],
+      [Property],
+      [],
+    ),
+  'deleteProperty' : IDL.Func([IDL.Nat], [], []),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getProperty' : IDL.Func([IDL.Nat], [IDL.Opt(Property)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'listProperties' : IDL.Func([], [IDL.Vec(Property)], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'updateProperty' : IDL.Func(
+      [
+        IDL.Nat,
+        IDL.Text,
+        IDL.Text,
+        IDL.Opt(IDL.Nat),
+        IDL.Opt(IDL.Text),
+        IDL.Vec(IDL.Text),
+        IDL.Opt(IDL.Text),
+      ],
+      [Property],
+      [],
+    ),
 });
 
 export const idlInitArgs = [];
@@ -37,20 +74,57 @@ export const idlFactory = ({ IDL }) => {
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const Property = IDL.Record({
+    'id' : IDL.Nat,
+    'title' : IDL.Text,
+    'video' : IDL.Opt(IDL.Text),
+    'description' : IDL.Text,
+    'price' : IDL.Opt(IDL.Nat),
+    'location' : IDL.Opt(IDL.Text),
+    'images' : IDL.Vec(IDL.Text),
+  });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
   
   return IDL.Service({
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'createProperty' : IDL.Func(
+        [
+          IDL.Text,
+          IDL.Text,
+          IDL.Opt(IDL.Nat),
+          IDL.Opt(IDL.Text),
+          IDL.Vec(IDL.Text),
+          IDL.Opt(IDL.Text),
+        ],
+        [Property],
+        [],
+      ),
+    'deleteProperty' : IDL.Func([IDL.Nat], [], []),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getProperty' : IDL.Func([IDL.Nat], [IDL.Opt(Property)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'listProperties' : IDL.Func([], [IDL.Vec(Property)], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'updateProperty' : IDL.Func(
+        [
+          IDL.Nat,
+          IDL.Text,
+          IDL.Text,
+          IDL.Opt(IDL.Nat),
+          IDL.Opt(IDL.Text),
+          IDL.Vec(IDL.Text),
+          IDL.Opt(IDL.Text),
+        ],
+        [Property],
+        [],
+      ),
   });
 };
 

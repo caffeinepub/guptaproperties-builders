@@ -5,7 +5,6 @@ import { useIsCallerAdmin } from '../hooks/useQueries';
 import InquiryList from '../components/inquiries/InquiryList';
 import MyPrincipalCard from '../components/auth/MyPrincipalCard';
 import AdminManagementPanel from '../components/admin/AdminManagementPanel';
-import BootstrapAdminHelper from '../components/auth/BootstrapAdminHelper';
 import { Button } from '../components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
 import { Card, CardContent } from '../components/ui/card';
@@ -29,13 +28,6 @@ export default function AdminPage() {
   useEffect(() => {
     document.title = 'Admin Panel - GuptaProperties&Builders';
   }, []);
-
-  // Refetch admin status when identity changes
-  useEffect(() => {
-    if (isAuthenticated) {
-      refetchAdmin();
-    }
-  }, [isAuthenticated, refetchAdmin]);
 
   // Not authenticated - show login prompt
   if (!isAuthenticated) {
@@ -72,6 +64,8 @@ export default function AdminPage() {
 
   // Authenticated but admin check failed - show error state
   if (!adminLoading && adminCheckError) {
+    const errorMessage = adminError instanceof Error ? adminError.message : 'Unknown error';
+    
     return (
       <div className="min-h-screen bg-muted/20 py-12">
         <div className="container mx-auto px-4">
@@ -83,23 +77,22 @@ export default function AdminPage() {
           </div>
 
           <div className="space-y-6">
-            <BootstrapAdminHelper />
             <MyPrincipalCard />
             
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Admin Status Check Failed</AlertTitle>
+              <AlertTitle>Error Checking Admin Status</AlertTitle>
               <AlertDescription className="mt-2 space-y-2">
                 <p>
-                  We couldn't verify your admin status due to a backend error. This may happen if:
+                  We couldn't verify your admin status. This may happen if:
                 </p>
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   <li>The canister is still initializing after deployment</li>
                   <li>There's a temporary connection issue</li>
                   <li>The backend needs to be redeployed</li>
                 </ul>
-                <p className="text-sm font-medium mt-3">
-                  Error: {adminError instanceof Error ? adminError.message : 'Unknown error'}
+                <p className="text-xs font-mono mt-3 p-2 bg-muted rounded">
+                  {errorMessage}
                 </p>
               </AlertDescription>
             </Alert>
@@ -139,16 +132,19 @@ export default function AdminPage() {
           </div>
 
           <div className="space-y-6">
-            <BootstrapAdminHelper />
             <MyPrincipalCard />
             
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Access Denied</strong>
-                <br />
-                You don't have admin access. To become an admin, log in as the bootstrap principal and refresh the page,
-                or share your Principal ID with an existing admin who can grant you access.
+              <AlertTitle>Access Denied</AlertTitle>
+              <AlertDescription className="mt-2 space-y-2">
+                <p>
+                  You don't have admin access. To get admin access:
+                </p>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>Share your Principal ID (shown above) with an existing admin</li>
+                  <li>Ask them to grant you admin access through the Admin Management panel</li>
+                </ul>
               </AlertDescription>
             </Alert>
           </div>
@@ -188,9 +184,6 @@ export default function AdminPage() {
         </div>
 
         <div className="space-y-6">
-          {/* Bootstrap Admin Helper */}
-          <BootstrapAdminHelper />
-
           {/* My Principal Card */}
           <MyPrincipalCard />
 
@@ -221,23 +214,17 @@ export default function AdminPage() {
                 </div>
 
                 {isLoading && (
-                  <Card>
-                    <CardContent className="flex min-h-[200px] items-center justify-center py-12">
-                      <div className="text-center">
-                        <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-muted-foreground" />
-                        <p className="text-muted-foreground">Loading inquiries...</p>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
                 )}
 
                 {isError && (
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error Loading Inquiries</AlertTitle>
                     <AlertDescription>
-                      {error instanceof Error && error.message.includes('Unauthorized')
-                        ? 'Admin access required to view inquiries'
-                        : 'Failed to load inquiries. Please try again.'}
+                      {error instanceof Error ? error.message : 'Failed to load inquiries'}
                     </AlertDescription>
                   </Alert>
                 )}

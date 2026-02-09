@@ -1,13 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Fix admin access so the bootstrap Principal and assigned admins are correctly recognized on `/admin` after Internet Identity login, including after canister upgrades.
+**Goal:** Make property creation errors actionable, ensure video support works reliably (YouTube URLs + size-limited uploads), and clarify/admin-enable property CRUD access paths.
 
 **Planned changes:**
-- Update `backend/main.mo` to expose the exact admin authorization methods the frontend calls: `isCallerAdmin()`, `assignCallerUserRole(...)`, and `_initializeAccessControlWithSecret(secret)`.
-- Ensure the bootstrap admin Principal `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is automatically granted admin privileges on install and after upgrade (additive, not dependent on any secret).
-- Persist role assignments in stable storage so admin grants/removals survive canister upgrades, adding conditional migration only if required to preserve existing stable data.
-- Enforce authorization on role assignment so only admins can call `assignCallerUserRole`; non-admin calls must trap with an error containing "Unauthorized".
-- Adjust the Admin page UX to show a clear message when admin detection fails due to backend API errors, while keeping existing unauthenticated and access-denied behaviors.
+- Update the property create/edit flow to surface specific failure reasons (permission/admin-only, request/payload too large, invalid input, generic backend failure) instead of always showing a generic error.
+- Add clear UI guidance when a logged-in user is not an admin, and hide admin-only create/edit/delete controls for non-admin users.
+- Make video attachments work end-to-end: reliably accept and validate YouTube URLs, validate video file uploads against a configured size limit before submit, and render videos on property cards (YouTube embed or HTML5 video).
+- Enforce backend validation for video values (must be YouTube URL or `data:video/*` data URL) and enforce a maximum allowed size/length for the video field with clear trap messages that the frontend displays.
+- Ensure the bootstrap admin Principal flow works out-of-the-box so authorized users can create/update/delete properties without authorization traps, and permission traps are shown as permission-specific errors.
 
-**User-visible outcome:** Logging in as the bootstrap Principal (or a Principal granted admin by an admin) reliably shows admin access on `/admin`, including after upgrades; if the backend admin check errors, `/admin` displays a helpful status message instructing the user to refresh/try again.
+**User-visible outcome:** Users trying to create/edit properties see clear, specific errors with guidance (especially for admin permissions and size limits). Admins can create/update/delete listings successfully, and property videos work reliably via YouTube links or size-limited uploads that play on listing cards.
