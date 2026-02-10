@@ -6,11 +6,16 @@ export interface AdminDiagnostics {
   backendCallerPrincipal: string;
   backendAdminList: string[];
   backendReportsIsAdmin: boolean;
+  // Frontend-side environment context
+  currentOrigin: string;
+  currentHost: string;
+  environmentLabel: string;
 }
 
 /**
  * Hook to fetch admin diagnostics from the backend for troubleshooting.
- * Returns the backend-reported caller principal, admin list, and admin status.
+ * Returns the backend-reported caller principal, admin list, admin status,
+ * and frontend environment context for cross-deployment verification.
  * Automatically refetches when invalidated by admin grant/revoke mutations.
  */
 export function useAdminDiagnostics() {
@@ -64,10 +69,31 @@ export function useAdminDiagnostics() {
           }
         }
 
+        // Derive environment label from hostname
+        const host = window.location.host;
+        const origin = window.location.origin;
+        let environmentLabel = 'Unknown';
+        
+        if (host.includes('localhost') || host.includes('127.0.0.1')) {
+          environmentLabel = 'Local Development';
+        } else if (host.includes('.ic0.app') || host.includes('.icp0.io')) {
+          // Check if it's a raw canister URL or custom domain
+          if (host.match(/^[a-z0-9-]+\.ic0\.app$/) || host.match(/^[a-z0-9-]+\.icp0\.io$/)) {
+            environmentLabel = 'IC Network (Canister URL)';
+          } else {
+            environmentLabel = 'IC Network';
+          }
+        } else {
+          environmentLabel = 'Custom Domain';
+        }
+
         return {
           backendCallerPrincipal: callerPrincipal,
           backendAdminList: adminList,
           backendReportsIsAdmin: isAdmin,
+          currentOrigin: origin,
+          currentHost: host,
+          environmentLabel,
         };
       } catch (error: any) {
         console.error('Error fetching admin diagnostics:', error);

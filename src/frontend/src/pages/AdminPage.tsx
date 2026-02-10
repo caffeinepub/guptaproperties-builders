@@ -10,7 +10,7 @@ import { Button } from '../components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Separator } from '../components/ui/separator';
-import { RefreshCw, Loader2, Lock, AlertCircle, ShieldCheck, Info } from 'lucide-react';
+import { RefreshCw, Loader2, Lock, AlertCircle, ShieldCheck, Info, Globe } from 'lucide-react';
 
 export default function AdminPage() {
   const { identity, login, loginStatus } = useInternetIdentity();
@@ -90,6 +90,34 @@ export default function AdminPage() {
           </div>
 
           <div className="space-y-6">
+            {/* Deployment Environment Card */}
+            {diagnostics && (
+              <Card className="border-blue-500 bg-blue-50 dark:bg-blue-950">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-blue-900 dark:text-blue-100">
+                    <Globe className="h-5 w-5" />
+                    Deployment Environment
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div>
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Environment:</p>
+                    <p className="font-mono text-sm text-blue-900 dark:text-blue-100">{diagnostics.environmentLabel}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Current URL:</p>
+                    <p className="font-mono text-xs break-all text-blue-900 dark:text-blue-100">{diagnostics.currentOrigin}</p>
+                  </div>
+                  <Alert className="mt-3 border-blue-600 bg-blue-100 dark:bg-blue-900">
+                    <Info className="h-4 w-4 text-blue-700 dark:text-blue-300" />
+                    <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
+                      <strong>Testing Checklist:</strong> To verify admin access across deployments, log in as <code className="font-mono text-xs bg-blue-200 dark:bg-blue-800 px-1 rounded">fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe</code> in BOTH your draft and production URLs and confirm this page shows "Admin Access Active" in both environments.
+                    </AlertDescription>
+                  </Alert>
+                </CardContent>
+              </Card>
+            )}
+
             <MyPrincipalCard />
             
             {/* Admin Diagnostics Section */}
@@ -182,6 +210,34 @@ export default function AdminPage() {
           </div>
 
           <div className="space-y-6">
+            {/* Deployment Environment Card */}
+            {diagnostics && (
+              <Card className="border-blue-500 bg-blue-50 dark:bg-blue-950">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-blue-900 dark:text-blue-100">
+                    <Globe className="h-5 w-5" />
+                    Deployment Environment
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div>
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Environment:</p>
+                    <p className="font-mono text-sm text-blue-900 dark:text-blue-100">{diagnostics.environmentLabel}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Current URL:</p>
+                    <p className="font-mono text-xs break-all text-blue-900 dark:text-blue-100">{diagnostics.currentOrigin}</p>
+                  </div>
+                  <Alert className="mt-3 border-blue-600 bg-blue-100 dark:bg-blue-900">
+                    <Info className="h-4 w-4 text-blue-700 dark:text-blue-300" />
+                    <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
+                      <strong>Testing Checklist:</strong> To verify admin access across deployments, log in as <code className="font-mono text-xs bg-blue-200 dark:bg-blue-800 px-1 rounded">fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe</code> in BOTH your draft and production URLs and confirm this page shows "Admin Access Active" in both environments.
+                    </AlertDescription>
+                  </Alert>
+                </CardContent>
+              </Card>
+            )}
+
             <MyPrincipalCard />
             
             {/* Admin Diagnostics Section */}
@@ -279,6 +335,34 @@ export default function AdminPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Deployment Environment Card */}
+          {diagnostics && (
+            <Card className="border-blue-500 bg-blue-50 dark:bg-blue-950">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-900 dark:text-blue-100">
+                  <Globe className="h-5 w-5" />
+                  Deployment Environment
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div>
+                  <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Environment:</p>
+                  <p className="font-mono text-sm text-blue-900 dark:text-blue-100">{diagnostics.environmentLabel}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Current URL:</p>
+                  <p className="font-mono text-xs break-all text-blue-900 dark:text-blue-100">{diagnostics.currentOrigin}</p>
+                </div>
+                <Alert className="mt-3 border-blue-600 bg-blue-100 dark:bg-blue-900">
+                  <Info className="h-4 w-4 text-blue-700 dark:text-blue-300" />
+                  <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
+                    <strong>Testing Checklist:</strong> To verify admin access across deployments, log in as <code className="font-mono text-xs bg-blue-200 dark:bg-blue-800 px-1 rounded">fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe</code> in BOTH your draft and production URLs and confirm this page shows "Admin Access Active" in both environments.
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Principal ID Card */}
           <MyPrincipalCard />

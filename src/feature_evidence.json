@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-verify-and-adjust-the-admin-page-workflow-so-it-works-end-to-end-with-the-corrected-backend-admin-check-diagnostics-and-grant-revoke-actions-update-the-ui-state-after-mutations",
-      "featureTitle": "Verify and adjust the Admin page workflow so it works end-to-end with the corrected backend: admin check, diagnostics, and grant/revoke actions update the UI state after mutations.",
+      "featureId": "feature-apply-the-admin-addition-for-principal-fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe-in-both-environments-the-draft-canister-deployment-and-the-production-canister-deployment",
+      "featureTitle": "Apply the admin addition for principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` in both environments: the draft canister deployment and the production canister deployment.",
       "files": [
-        "frontend/src/components/admin/AdminManagementPanel.tsx",
-        "frontend/src/hooks/useAdminManagement.ts",
+        "frontend/src/hooks/useAdminDiagnostics.ts",
         "frontend/src/pages/AdminPage.tsx"
       ],
       "components": [
@@ -19,7 +18,7 @@
         "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-5"
+        "REQ-2"
       ],
       "confidence": "high"
     }

@@ -1,32 +1,25 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Admin UI end-to-end workflow fixes (admin check, diagnostics, grant/revoke refresh)",
+  "title": "Frontend diagnostics to validate admin access across draft and production deployments",
   "requirements": [
     {
-      "id": "REQ-5",
-      "summary": "Update the /admin workflow so authentication, admin diagnostics, and admin grant/revoke actions work end-to-end and the UI refreshes automatically after mutations.",
+      "id": "REQ-2",
+      "summary": "Provide clear UI diagnostics to verify the new admin principal has access in both draft and production deployments.",
       "acceptanceCriteria": [
-        "`/admin` shows a login prompt when not authenticated, and shows the authenticated principal once logged in.",
-        "When logged in as an admin, the Admin Management panel can successfully grant/revoke admins and shows success/error states in English.",
-        "After a successful grant/revoke, the page reflects the updated admin status/diagnostics via React Query invalidation/refetch (no manual hard refresh required).",
-        "No changes are made to files listed as immutable by the platform (e.g., `frontend/src/hooks/useInternetIdentity.ts(x)`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, `frontend/src/components/ui/*`)."
+        "In the draft deployment, `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` has admin access.",
+        "In the production deployment, `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` has admin access."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useAdminManagement.ts",
-          "operation": "modify",
-          "description": "Make admin grant/revoke mutations robust against backend method differences by preferring admin-management methods (e.g., grant/revoke) when available and falling back to role-assignment when needed; keep all user-facing errors in clear English; ensure React Query invalidation targets the active keys used by `useIsCallerAdmin` and `useAdminDiagnostics` so /admin updates without refresh."
-        },
-        {
-          "path": "frontend/src/components/admin/AdminManagementPanel.tsx",
-          "operation": "modify",
-          "description": "Improve end-to-end UX for admin management by resetting stale mutation success/error banners when inputs change and after subsequent submissions, while continuing to use the existing shadcn-ui components (Card, Alert, Button, Input) for consistent UI. Verify the component's usage instructions before implementing."
-        },
-        {
           "path": "frontend/src/pages/AdminPage.tsx",
           "operation": "modify",
-          "description": "Ensure the /admin page reliably displays the authenticated principal (via existing principal card) after login, and that admin diagnostics and admin status visibly refresh after grant/revoke by relying on query invalidation/refetch rather than manual page reload; keep all UI text in English and avoid changes to immutable auth/actor hooks."
+          "description": "Add a small \"Deployment/Environment\" diagnostics section to the Admin page (visible in non-admin and admin states) that shows enough runtime context (e.g., current origin/host and any available build-time network indicator) and a short verification checklist instructing operators to test admin access by logging in as the specified principal in BOTH the draft and production URLs and confirming the page reports admin=true via existing diagnostics. Keep UI changes minimal per non-goals."
+        },
+        {
+          "path": "frontend/src/hooks/useAdminDiagnostics.ts",
+          "operation": "modify",
+          "description": "Extend diagnostics returned to the Admin page with additional frontend-side context useful for cross-environment verification (e.g., current window.location origin/host and a derived environment label), so the UI can display which deployment is being checked without requiring backend changes."
         }
       ]
     }
