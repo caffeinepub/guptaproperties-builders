@@ -1,57 +1,38 @@
 {
   "kind": "build_request",
-  "title": "Grant additional admin privileges to principal fxms2-qslpu-…-hqe (live app)",
+  "title": "Retry application deployment",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Ensure the Internet Identity principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` is granted the `#admin` role in the backend admin system, without removing or replacing any existing admins.",
-      "target": "backend",
+      "id": "REQ-7",
+      "text": "Retry deploying the current application build (frontend + backend) without introducing any new feature changes, and confirm the deployment completes successfully.",
+      "target": "unknown",
       "source": {
         "messageIds": [
-          "msg-user-principal",
-          "msg-user-confirm"
+          "msg-3",
+          "msg-4"
         ],
         "quotes": [
-          "This principal id showing in live ... fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe",
-          "1st option yes"
+          "User: 1",
+          "Assistant: Got it — retrying the deployment."
         ]
       },
       "acceptanceCriteria": [
-        "When logged in as `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe`, calling `checkIfCallerIsAdmin` returns `true`.",
-        "Admin-only backend methods (e.g., `createProperty`, `updateProperty`, `deleteProperty`, `grantAdmin`, `revokeAdmin`) do not trap with \"Unauthorized: Admin access required\" for this principal.",
-        "Existing admin principals (already in the canister state) remain admins after this change."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Apply the admin grant for principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` in a way that persists across canister upgrades and is applied consistently in both draft and production deployments.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-user-confirm"
-        ],
-        "quotes": [
-          "1st option yes"
-        ]
-      },
-      "acceptanceCriteria": [
-        "After an upgrade, the principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` is still an admin (admin check remains `true`).",
-        "The implementation does not depend on manual post-deploy UI actions to re-grant admin on every deployment.",
-        "No backend state unrelated to admin roles is lost during the change (e.g., property listings remain intact if they existed previously)."
+        "A deployment attempt is executed for the current app revision (same code as last attempted deploy).",
+        "The deployment completes successfully with no build or deploy errors.",
+        "The deployed frontend loads and can reach the backend canister without runtime errors.",
+        "If deployment fails again, capture and surface the full error output (build logs and deploy logs) so it can be used to create a follow-up fix request."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in `backend/main.mo`.",
-    "Generate `backend/migration.mo` only if required to preserve/upgrade existing state (conditional migration policy).",
-    "Do not modify any files under `frontend/src/components/ui` or other immutable frontend paths listed in SYSTEM_CONTEXT.",
+    "Do not implement new backend or frontend features as part of this deployment retry.",
     "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Do not implement third-party authentication providers; only Internet Identity is supported.",
-    "Do not add new admin UI features beyond what is necessary to validate the admin grant.",
-    "Do not change property listing CRUD behavior except as needed to validate admin authorization."
+    "Changing the backend admin system (e.g., granting principals, persisting admin list across upgrades).",
+    "Implementing or modifying getAdminsList() behavior.",
+    "Updating any frontend admin diagnostics UI behavior."
   ],
   "imageRequirements": {
     "required": [],

@@ -1,13 +1,34 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
+  "projectStateVersion": 7,
   "summary": "New project",
   "architectural_notes": [
-    "Admin access should support multiple Internet Identity principals (additive admins)."
+    "Admin access should support multiple Internet Identity principals (additive admins).",
+    "Publishing a draft to live must preserve (merge) the existing admin list; admin access should be additive and not overwritten by draft state."
   ],
-  "known_issues": [],
-  "isFixRequest": false,
-  "existing_features": [],
+  "known_issues": [
+    "After publishing Draft 38 to live, the user reports both the newly added admin and the previous admin were removed/missing; needs restoration and prevention of admin list overwrite during publish.",
+    "Deployment encountered an error/technical failure during build/deploy; user requested a retry of the deployment."
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-update-the-frontend-admin-diagnostics-display-to-reliably-show-the-backend-reported-admin-list-from-getadminslist-and-ensure-the-diagnostics-section-shows-the-list-whenever-the-backend-returns-it-including-when-the-list-is-empty-show-a-clear-english-message-that-no-admins-were-returned",
+      "title": "Update the frontend admin diagnostics display to reliably show the backend-reported admin list (from `getAdminsList()`), and ensure the diagnostics section shows the list whenever the backend returns it (including when the list is empty, show a clear English message that no admins were returned).",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-retry-deploying-the-current-application-build-frontend-backend-without-introducing-any-new-feature-changes-and-confirm-the-deployment-completes-successfully",
+      "title": "Retry deploying the current application build (frontend + backend) without introducing any new feature changes, and confirm the deployment completes successfully.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    }
+  ],
   "new_feature_requests": [
     {
       "id": "AR-1",
@@ -28,6 +49,36 @@
       "summary": "Apply the admin grant for principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` in a way that persists across canister upgrades and is applied consistently in both draft and production deployments.",
       "reqIds": [
         "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Restore both the newly added admin principal (fxms2-qslpu-…-hqe) and the previously existing admin after publishing Draft 38 to live, ensuring publishing does not remove existing admins.",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Ensure the backend admin system restores and retains admin access for the Internet Identity principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` and does not remove/replace any pre-existing admins when deploying/publishing a draft to production.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Persist the admin principal set across canister upgrades so that publishing/redeploying does not reset or lose the admin list.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Implement a real backend admin list query so that `getAdminsList()` returns the current admin principals instead of an empty array, and ensure only admins can call it.",
+      "reqIds": [
+        "REQ-5"
       ],
       "status": "pending"
     }

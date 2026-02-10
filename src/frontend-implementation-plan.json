@@ -1,6 +1,34 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Frontend plan (no changes required) — grant admin privileges to principal",
-  "requirements": []
+  "title": "Deployment retry (no feature changes) — frontend verification + logging",
+  "requirements": [
+    {
+      "id": "REQ-7",
+      "summary": "Add deployment-retry guidance and strengthen frontend-side logging to help confirm successful deploy and capture full errors if it fails again (no feature changes).",
+      "acceptanceCriteria": [
+        "A deployment attempt is executed for the current app revision (same code as last attempted deploy).",
+        "The deployment completes successfully with no build or deploy errors.",
+        "The deployed frontend loads and can reach the backend canister without runtime errors.",
+        "If deployment fails again, capture and surface the full error output (build logs and deploy logs) so it can be used to create a follow-up fix request."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/DEPLOYMENT_RETRY.md",
+          "operation": "create",
+          "description": "Document the exact steps to retry deployment for the current revision (no code changes), including how to run the frontend build, perform the deploy, and where/how to capture and share full build + deploy logs if it fails. Include a short post-deploy smoke checklist: load the deployed frontend, confirm it initializes the backend actor (core-infrastructure backend connection configuration), and confirm no runtime errors appear in the browser console. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Improve error visibility during actor creation/initialization by ensuring any failures are logged with full error details (including initialization steps that rely on core-infrastructure actor creation and authorization bootstrap) and rethrown so they are detectable during deployment smoke tests. Do not alter functional behavior beyond clearer logging and safer error surfacing. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/main.tsx",
+          "operation": "modify",
+          "description": "Add minimal global runtime error logging hooks (e.g., uncaught error/unhandled promise rejection handlers) to ensure any post-deploy runtime failures are surfaced clearly in console output for capture, without changing app UI/behavior. Verify the component's usage instructions before implementing."
+        }
+      ]
+    }
+  ]
 }

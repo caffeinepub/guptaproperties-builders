@@ -169,15 +169,15 @@ actor {
   // Diagnostic Endpoints
   // ------------------------------------------
   public query ({ caller }) func getCallerPrincipalAsText() : async Text {
-    if (caller.isAnonymous()) {
-      Runtime.trap("Unauthorized: Anonymous cannot use this endpoint");
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can use this endpoint");
     };
     caller.toText();
   };
 
   public query ({ caller }) func checkIfCallerIsAdmin() : async Bool {
-    if (caller.isAnonymous()) {
-      Runtime.trap("Unauthorized: Anonymous cannot use this endpoint");
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can use this endpoint");
     };
     AccessControl.isAdmin(accessControlState, caller);
   };
