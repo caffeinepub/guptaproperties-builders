@@ -7,10 +7,25 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export class ExternalBlob {
+    getBytes(): Promise<Uint8Array<ArrayBuffer>>;
+    getDirectURL(): string;
+    static fromURL(url: string): ExternalBlob;
+    static fromBytes(blob: Uint8Array<ArrayBuffer>): ExternalBlob;
+    withUploadProgress(onProgress: (percentage: number) => void): ExternalBlob;
+}
+export interface PropertyInput {
+    title: string;
+    video?: ExternalBlob;
+    description: string;
+    price?: bigint;
+    location?: string;
+    images: Array<string>;
+}
 export interface Property {
     id: bigint;
     title: string;
-    video?: string;
+    video?: ExternalBlob;
     description: string;
     price?: bigint;
     location?: string;
@@ -26,8 +41,10 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    createProperty(title: string, description: string, price: bigint | null, location: string | null, images: Array<string>, video: string | null): Promise<Property>;
+    checkIfCallerIsAdmin(): Promise<boolean>;
+    createProperty(input: PropertyInput): Promise<Property>;
     deleteProperty(id: bigint): Promise<void>;
+    getCallerPrincipalAsText(): Promise<string>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getProperty(_id: bigint): Promise<Property | null>;
@@ -35,5 +52,5 @@ export interface backendInterface {
     isCallerAdmin(): Promise<boolean>;
     listProperties(): Promise<Array<Property>>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
-    updateProperty(id: bigint, title: string, description: string, price: bigint | null, location: string | null, images: Array<string>, video: string | null): Promise<Property>;
+    updateProperty(id: bigint, input: PropertyInput): Promise<Property>;
 }

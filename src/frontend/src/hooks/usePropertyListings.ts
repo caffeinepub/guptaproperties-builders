@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { normalizeICError } from '../utils/icError';
-import type { Property } from '../backend';
+import type { Property, PropertyInput, ExternalBlob } from '../backend';
 
 // Property Listings Query
 export function usePropertyListings() {
@@ -42,18 +42,19 @@ export function useCreateProperty() {
       price: bigint | null;
       location: string | null;
       images: string[];
-      video: string | null;
+      video: ExternalBlob | string | null;
     }) => {
       if (!actor) throw new Error('Actor not available');
       try {
-        return await actor.createProperty(
-          data.title,
-          data.description,
-          data.price,
-          data.location,
-          data.images,
-          data.video
-        );
+        const input: PropertyInput = {
+          title: data.title,
+          description: data.description,
+          price: data.price ?? undefined,
+          location: data.location ?? undefined,
+          images: data.images,
+          video: data.video && typeof data.video !== 'string' ? data.video : undefined,
+        };
+        return await actor.createProperty(input);
       } catch (error: any) {
         const normalized = normalizeICError(error);
         console.error('Error creating property:', normalized);
@@ -79,19 +80,19 @@ export function useUpdateProperty() {
       price: bigint | null;
       location: string | null;
       images: string[];
-      video: string | null;
+      video: ExternalBlob | string | null;
     }) => {
       if (!actor) throw new Error('Actor not available');
       try {
-        return await actor.updateProperty(
-          data.id,
-          data.title,
-          data.description,
-          data.price,
-          data.location,
-          data.images,
-          data.video
-        );
+        const input: PropertyInput = {
+          title: data.title,
+          description: data.description,
+          price: data.price ?? undefined,
+          location: data.location ?? undefined,
+          images: data.images,
+          video: data.video && typeof data.video !== 'string' ? data.video : undefined,
+        };
+        return await actor.updateProperty(data.id, input);
       } catch (error: any) {
         const normalized = normalizeICError(error);
         console.error('Error updating property:', normalized);
@@ -113,7 +114,7 @@ export function useDeleteProperty() {
     mutationFn: async (id: bigint) => {
       if (!actor) throw new Error('Actor not available');
       try {
-        await actor.deleteProperty(id);
+        return await actor.deleteProperty(id);
       } catch (error: any) {
         const normalized = normalizeICError(error);
         console.error('Error deleting property:', normalized);

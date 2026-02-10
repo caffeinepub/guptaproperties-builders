@@ -1,13 +1,14 @@
 import Nat "mo:core/Nat";
 import Map "mo:core/Map";
-import Iter "mo:core/Iter";
 import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
-import Migration "migration";
+import Text "mo:core/Text";
+import Iter "mo:core/Iter";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
+import MixinStorage "blob-storage/Mixin";
+import Storage "blob-storage/Storage";
 
-(with migration = Migration.run)
 actor {
   public type UserRole = {
     #admin;
@@ -26,19 +27,26 @@ actor {
     price : ?Nat;
     location : ?Text;
     images : [Text];
-    video : ?Text;
+    video : ?Storage.ExternalBlob;
   };
 
-  let BOOTSTRAP_ADMIN : Principal = Principal.fromText("enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae");
+  public type PropertyInput = {
+    title : Text;
+    description : Text;
+    price : ?Nat;
+    location : ?Text;
+    images : [Text];
+    video : ?Storage.ExternalBlob;
+  };
 
-  var owner : ?Principal = null;
-  var accessControlState : AccessControl.AccessControlState = AccessControl.initState();
   var userProfiles = Map.empty<Principal, UserProfile>();
   let propertiesState = Map.empty<Nat, Property>();
   var nextPropertyId = 0;
 
-  // Initialize bootstrap admin via dfx start
+  // Initialize authorization system
+  let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
+  include MixinStorage();
 
   // ------------------------------------------
   // User Profile Management
@@ -75,26 +83,17 @@ actor {
     propertiesState.get(_id);
   };
 
-  public shared ({ caller }) func createProperty(
-    title : Text,
-    description : Text,
-    price : ?Nat,
-    location : ?Text,
-    images : [Text],
-    video : ?Text,
-  ) : async Property {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can create properties");
-    };
+  public shared ({ caller }) func createProperty(input : PropertyInput) : async Property {
+    assertAdmin(caller);
 
     let property : Property = {
       id = nextPropertyId;
-      title;
-      description;
-      price;
-      location;
-      images;
-      video;
+      title = input.title;
+      description = input.description;
+      price = input.price;
+      location = input.location;
+      images = input.images;
+      video = input.video;
     };
 
     propertiesState.add(nextPropertyId, property);
@@ -104,16 +103,9 @@ actor {
 
   public shared ({ caller }) func updateProperty(
     id : Nat,
-    title : Text,
-    description : Text,
-    price : ?Nat,
-    location : ?Text,
-    images : [Text],
-    video : ?Text,
+    input : PropertyInput,
   ) : async Property {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can update properties");
-    };
+    assertAdmin(caller);
 
     switch (propertiesState.get(id)) {
       case (null) {
@@ -122,12 +114,12 @@ actor {
       case (?_) {
         let updatedProperty : Property = {
           id;
-          title;
-          description;
-          price;
-          location;
-          images;
-          video;
+          title = input.title;
+          description = input.description;
+          price = input.price;
+          location = input.location;
+          images = input.images;
+          video = input.video;
         };
         propertiesState.add(id, updatedProperty);
         updatedProperty;
@@ -136,9 +128,7 @@ actor {
   };
 
   public shared ({ caller }) func deleteProperty(id : Nat) : async () {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Only admins can delete properties");
-    };
+    assertAdmin(caller);
 
     switch (propertiesState.get(id)) {
       case (null) {
@@ -148,5 +138,31 @@ actor {
         propertiesState.remove(id);
       };
     };
+  };
+
+  func assertAdmin(caller : Principal) {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Admin access required");
+    };
+  };
+
+  // ------------------------------------------
+  // Diagnostic Endpoints
+  // ------------------------------------------
+  // Returns the caller's principal as text (for debugging) Available to all authenticated users
+  public query ({ caller }) func getCallerPrincipalAsText() : async Text {
+    if (caller.isAnonymous()) {
+      Runtime.trap("Unauthorized: Anonymous cannot use this endpoint");
+    };
+    caller.toText();
+  };
+
+  // Returns a boolean indicating whether the caller is an admin (for debugging)
+  // Available to all authenticated users
+  public query ({ caller }) func checkIfCallerIsAdmin() : async Bool {
+    if (caller.isAnonymous()) {
+      Runtime.trap("Unauthorized: Anonymous cannot use this endpoint");
+    };
+    AccessControl.isAdmin(accessControlState, caller);
   };
 };

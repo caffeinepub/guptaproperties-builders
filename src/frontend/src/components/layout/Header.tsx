@@ -13,7 +13,6 @@ export default function Header() {
 
   const isAuthenticated = !!identity;
   const showAdminLink = isAuthenticated && !adminLoading && isAdmin;
-  const isHomePage = currentPath === '/';
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -46,16 +45,14 @@ export default function Header() {
             >
               Properties
             </Link>
-            {!isHomePage && (
-              <Link
-                to="/inquiries"
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  currentPath === '/inquiries' ? 'text-primary' : 'text-muted-foreground'
-                }`}
-              >
-                Inquiries
-              </Link>
-            )}
+            <Link
+              to="/inquiries"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                currentPath === '/inquiries' ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              Inquiries
+            </Link>
             {showAdminLink && (
               <Link
                 to="/admin"
@@ -91,16 +88,14 @@ export default function Header() {
             >
               Properties
             </Link>
-            {!isHomePage && (
-              <Link
-                to="/inquiries"
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  currentPath === '/inquiries' ? 'text-primary' : 'text-muted-foreground'
-                }`}
-              >
-                Inquiries
-              </Link>
-            )}
+            <Link
+              to="/inquiries"
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                currentPath === '/inquiries' ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              Inquiries
+            </Link>
             {showAdminLink && (
               <Link
                 to="/admin"

@@ -6,10 +6,11 @@ import { Label } from '../ui/label';
 import { Card, CardContent } from '../ui/card';
 import { Alert, AlertDescription } from '../ui/alert';
 import { X, Plus, Upload, Loader2, AlertCircle, Video, Link as LinkIcon } from 'lucide-react';
+import { Progress } from '../ui/progress';
 import { fileToDataUrl } from '../../utils/fileToDataUrl';
-import { videoFileToDataUrl } from '../../utils/videoFileToDataUrl';
+import { useChunkedVideoUpload } from '../../hooks/useChunkedVideoUpload';
 import { isYouTubeUrl } from '../../utils/youtube';
-import type { Property } from '../../backend';
+import type { Property, ExternalBlob } from '../../backend';
 
 interface InlinePropertyFormProps {
   property?: Property;
@@ -19,7 +20,7 @@ interface InlinePropertyFormProps {
     price: bigint | null;
     location: string | null;
     images: string[];
-    video: string | null;
+    video: ExternalBlob | string | null;
   }) => void;
   onCancel: () => void;
   isSaving?: boolean;
@@ -44,11 +45,11 @@ export default function InlinePropertyForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Video state
-  const [video, setVideo] = useState<string | null>(property?.video || null);
+  const [video, setVideo] = useState<ExternalBlob | string | null>(property?.video || null);
   const [videoUrl, setVideoUrl] = useState('');
   const [videoError, setVideoError] = useState<string | null>(null);
-  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const videoFileInputRef = useRef<HTMLInputElement>(null);
+  const { uploadVideo, progress, reset: resetUpload } = useChunkedVideoUpload();
 
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -112,16 +113,15 @@ export default function InlinePropertyForm({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploadingVideo(true);
     setVideoError(null);
+    resetUpload();
 
     try {
-      const dataUrl = await videoFileToDataUrl(file);
-      setVideo(dataUrl);
+      const blob = await uploadVideo(file);
+      setVideo(blob);
     } catch (err: any) {
       setVideoError(err.message || 'Failed to upload video');
     } finally {
-      setIsUploadingVideo(false);
       if (videoFileInputRef.current) {
         videoFileInputRef.current.value = '';
       }
@@ -132,6 +132,7 @@ export default function InlinePropertyForm({
     setVideo(null);
     setVideoUrl('');
     setVideoError(null);
+    resetUpload();
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -148,17 +149,9 @@ export default function InlinePropertyForm({
       return;
     }
 
-    // Validate video format if present
-    if (video && !isYouTubeUrl(video) && !video.startsWith('data:video/')) {
+    // Validate video format if present (YouTube URL only for string type)
+    if (video && typeof video === 'string' && !isYouTubeUrl(video)) {
       setValidationError('Invalid video format. Please use a YouTube URL or upload a video file.');
-      return;
-    }
-
-    // Check total payload size (rough estimate)
-    const totalSize = JSON.stringify({ title, description, images, video }).length;
-    const maxPayloadSize = 2 * 1024 * 1024; // 2MB rough limit
-    if (totalSize > maxPayloadSize) {
-      setValidationError('Total data size is too large. Please reduce the number of images or use YouTube for video.');
       return;
     }
 
@@ -174,6 +167,9 @@ export default function InlinePropertyForm({
       video,
     });
   };
+
+  const isUploadingVideo = progress.isUploading;
+  const videoUploadPercentage = progress.percentage;
 
   return (
     <Card className="border-2 border-primary/20">
@@ -329,7 +325,7 @@ export default function InlinePropertyForm({
           <div className="space-y-2">
             <Label>Video (Optional)</Label>
             <p className="text-sm text-muted-foreground">
-              Add one video via YouTube URL (recommended) or upload a small video file (max 10MB)
+              Add one video via YouTube URL or upload a video file (any size supported)
             </p>
             
             {!video ? (
@@ -383,11 +379,21 @@ export default function InlinePropertyForm({
                     ) : (
                       <>
                         <Video className="mr-2 h-4 w-4" />
-                        Upload Video (Max 10MB)
+                        Upload Video
                       </>
                     )}
                   </Button>
                 </div>
+
+                {/* Upload Progress */}
+                {isUploadingVideo && (
+                  <div className="space-y-2">
+                    <Progress value={videoUploadPercentage} className="h-2" />
+                    <p className="text-sm text-muted-foreground text-center">
+                      {videoUploadPercentage}% uploaded
+                    </p>
+                  </div>
+                )}
               </>
             ) : (
               <div className="rounded-md border p-4">
@@ -395,7 +401,7 @@ export default function InlinePropertyForm({
                   <div className="flex items-center gap-2">
                     <Video className="h-5 w-5 text-primary" />
                     <span className="text-sm font-medium">
-                      {isYouTubeUrl(video) ? 'YouTube Video' : 'Uploaded Video'}
+                      {typeof video === 'string' ? 'YouTube Video' : 'Uploaded Video'}
                     </span>
                   </div>
                   <Button
@@ -408,7 +414,7 @@ export default function InlinePropertyForm({
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                {isYouTubeUrl(video) && (
+                {typeof video === 'string' && (
                   <p className="mt-2 truncate text-xs text-muted-foreground">{video}</p>
                 )}
               </div>

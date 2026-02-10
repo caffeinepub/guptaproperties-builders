@@ -1,41 +1,44 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-09T16:31:11.539Z",
-  "summary": "Frontend now normalizes IC errors into specific user-facing messages (permission vs request-too-large vs invalid/generic), adds clearer guidance for authenticated non-admins on the Properties page, and implements end-to-end YouTube URL + small video file (data URL) support in the property form and property card rendering. Backend adds admin-only traps for CRUD but does not show any server-side validation/enforcement for video format or max video field size/length.",
+  "generatedAt": "2026-02-10T10:05:02.601Z",
+  "summary": "Frontend header navigation was updated to render Admin conditionally for authenticated admins and to place it after Inquiries (desktop + likely mobile, though mobile section is truncated). Frontend admin-status detection was made more robust via a query hook that calls actor.isCallerAdmin() with fallback to actor.checkIfCallerIsAdmin(). However, the diff does not show the backend exposing the required isCallerAdmin() query method, and there is no evidence that the Home page includes an Inquiries link as required.",
   "missing_requirements": [
     {
-      "id": "REQ-2",
-      "requirement": "Backend rejects invalid video values (neither a YouTube URL nor a data:video/* data URL) with a clear trap message; the frontend surfaces this message.",
-      "reason": "backend/main.mo createProperty/updateProperty store the provided `video` field directly with no shown validation of YouTube URL vs data:video/*, and no trap message for invalid formats.",
+      "id": "REQ-1",
+      "requirement": "Ensure the Inquiries link is present on the Home page as well (so the Admin link can consistently appear after it).",
+      "reason": "The diff shows Header navigation updates, but no changes or evidence in Home page code indicating an Inquiries link exists there. The provided diffs do not include frontend/src/pages/HomePage.tsx modifications.",
       "evidence": [
-        "backend/main.mo"
+        "frontend/src/components/layout/Header.tsx (modified; shows Inquiries link in header, but not Home page content)",
+        "frontend-file-summaries.txt (mentions HomePage content but does not evidence an Inquiries link)"
       ]
     },
     {
       "id": "REQ-2",
-      "requirement": "Backend enforces a maximum allowed size/length for the video text field (and rejects overly large payloads early with a clear trap message).",
-      "reason": "No max-length/max-size checks or early traps for `video : ?Text` are shown in backend/main.mo; `video` is accepted and stored as-is.",
+      "requirement": "Ensure the backend exposes a query method named isCallerAdmin() that matches the frontend call signature, OR update the frontend to consistently call the backend’s existing checkIfCallerIsAdmin() endpoint; no runtime errors from missing backend methods.",
+      "reason": "Frontend now attempts actor.isCallerAdmin() first, but the backend diff excerpt does not show a public query method named isCallerAdmin(). Without it, the frontend will rely on fallback, but the requirement explicitly calls out adding isCallerAdmin() or consistently using the existing endpoint; the diff does not confirm the backend side of this contract.",
       "evidence": [
-        "backend/main.mo"
+        "backend/main.mo (modified; truncated; no visible isCallerAdmin() definition in provided excerpt)",
+        "frontend/src/hooks/useQueries.ts (modified; calls actor.isCallerAdmin() with fallback to actor.checkIfCallerIsAdmin())"
       ]
     }
   ],
-  "hallucinated_features": [],
-  "confidence": 0.74,
+  "hallucinated_features": [
+    {
+      "description": "Added an 'admin diagnostics' React Query hook that calls getCallerPrincipalAsText() and attempts admin-check methods with extra error handling, returning an (currently empty) admin list.",
+      "reason": "The BuildRequest only asked to conditionally show the Admin navbar link and fix admin-status detection; it did not request adding diagnostics tooling/hooks or calling getCallerPrincipalAsText().",
+      "evidence": [
+        "frontend/src/hooks/useAdminDiagnostics.ts"
+      ]
+    }
+  ],
+  "confidence": 0.62,
   "changed_files": [
     "backend/main.mo",
-    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/auth/BootstrapAdminHelper.tsx",
-    "frontend/src/components/properties/InlinePropertyForm.tsx",
-    "frontend/src/components/properties/PropertyCard.tsx",
-    "frontend/src/components/properties/PropertyList.tsx",
-    "frontend/src/hooks/usePropertyListings.ts",
-    "frontend/src/pages/PropertiesPage.tsx",
-    "frontend/src/utils/icError.ts",
-    "frontend/src/utils/videoFileToDataUrl.ts",
-    "frontend/src/utils/youtube.ts",
+    "frontend/src/components/layout/Header.tsx",
+    "frontend/src/hooks/useAdminDiagnostics.ts",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json"
   ]
 }

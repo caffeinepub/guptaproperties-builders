@@ -3,10 +3,10 @@ import { ChevronLeft, ChevronRight, ImageOff } from 'lucide-react';
 
 interface PropertyImageGalleryProps {
   images: string[];
-  title: string;
+  title?: string;
 }
 
-export default function PropertyImageGallery({ images, title }: PropertyImageGalleryProps) {
+export default function PropertyImageGallery({ images, title = 'Property' }: PropertyImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
 

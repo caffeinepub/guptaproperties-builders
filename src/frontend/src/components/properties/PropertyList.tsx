@@ -1,7 +1,7 @@
 import PropertyCard from './PropertyCard';
 import { Card, CardContent } from '../ui/card';
 import { Home } from 'lucide-react';
-import type { Property } from '../../backend';
+import type { Property, ExternalBlob } from '../../backend';
 
 interface PropertyListProps {
   properties: Property[];
@@ -13,7 +13,7 @@ interface PropertyListProps {
     price: bigint | null;
     location: string | null;
     images: string[];
-    video: string | null;
+    video: ExternalBlob | string | null;
   }) => void;
   onDelete?: (id: bigint) => void;
   updatingId?: bigint | null;
@@ -53,8 +53,8 @@ export default function PropertyList({
           key={property.id.toString()}
           property={property}
           isAdmin={isAdmin}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
+          onUpdate={isAdmin ? onUpdate : undefined}
+          onDelete={isAdmin ? onDelete : undefined}
           isUpdating={updatingId === property.id}
           isDeleting={deletingId === property.id}
           updateError={updatingId === property.id ? updateError : null}

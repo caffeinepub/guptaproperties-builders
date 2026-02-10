@@ -1,91 +1,57 @@
 {
   "kind": "build_request",
-  "title": "Fix property creation failures and make video support reliable for property listings",
-  "priority": "high",
+  "title": "Show Admin navbar button only for admins (after Home, Properties, Inquiries)",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the “Failed to create property” flow so users see the real underlying reason (e.g., not an admin, request too large, invalid input), and ensure the UI guides the user to resolve it.",
+      "text": "Update the site header navigation so that the navbar order is always: Home, Properties, Inquiries, then Admin; and render the Admin link only when the current authenticated user is an admin.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "user-last"
         ],
         "quotes": [
-          "Fix the error why it coming when I try to list a property",
-          "Failed to create property error coming when I try to list a property"
+          "add the Admin button in the navbar after Home, Properties, and Inquiries but admin button only appears to admins"
         ]
       },
       "acceptanceCriteria": [
-        "When property creation fails, the UI displays a specific error message that distinguishes at least: (1) permission/admin issue, (2) request too large (payload/video/image too big), and (3) generic backend failure.",
-        "The error message shown to the user must not always be the generic string “Failed to create property. Please try again.” if a more specific reason is available from the canister/agent error.",
-        "The Properties page shows clear next-step guidance when the user is authenticated but not an admin (e.g., “You are logged in but do not have admin access.”)."
+        "When logged in as a non-admin, the navbar shows Home, Properties, Inquiries, and does not show Admin.",
+        "When logged in as an admin, the navbar shows Home, Properties, Inquiries, Admin (Admin appears after Inquiries).",
+        "This ordering is consistent in both desktop and mobile header navigation.",
+        "The Inquiries link is present on the Home page as well (so the Admin link can consistently appear after it)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Make video attachment for property listings work end-to-end by supporting YouTube URLs reliably and preventing video uploads that exceed Internet Computer request limits, with clear user-facing validation and messaging.",
+      "text": "Fix admin-status detection so the frontend’s admin check reliably returns a boolean for authenticated users (so the Admin navbar link can appear for admins). Ensure the backend exposes a query method named isCallerAdmin() that matches the frontend call signature, or update the frontend admin-check hook(s) to call the backend’s existing checkIfCallerIsAdmin() endpoint consistently.",
       "target": "both",
       "source": {
         "messageIds": [
-          "msg-1"
+          "user-last"
         ],
         "quotes": [
-          "I can't add video",
-          "Ok create"
+          "admin button only appears to admins"
         ]
       },
       "acceptanceCriteria": [
-        "In the property create/edit form, adding a valid YouTube URL saves successfully and renders as an embedded video on the property card.",
-        "If a user attempts to upload a video file that is too large to be safely stored/sent (based on the app’s configured limit), the form blocks submission and shows a clear English error explaining the size limit.",
-        "If a user uploads a video file within the configured limit, it saves successfully and plays via an HTML5 <video> element on the property card.",
-        "Backend rejects invalid video values (neither a YouTube URL nor a data:video/* data URL) with a clear trap message; the frontend surfaces this message.",
-        "Backend enforces a maximum allowed size/length for the video text field (and rejects overly large payloads early with a clear trap message)."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Ensure property CRUD is usable by admins out of the box by making the initial admin bootstrap path clear and functional, so authorized users can create listings without hitting authorization traps.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "My website",
-          "I am using you caffeine ai that's your website that you have made"
-        ]
-      },
-      "acceptanceCriteria": [
-        "If the current caller is not an admin, the UI does not present the add/edit/delete controls and instead shows an explanation of why (admin-only).",
-        "If the canister has a configured bootstrap admin Principal (already present in backend), that Principal can create/update/delete properties successfully after logging in with Internet Identity.",
-        "If the current caller triggers an admin-only trap (create/update/delete property), the frontend surfaces a permission-specific error message (not a generic failure)."
+        "For an authenticated admin principal, the admin-status query resolves to true and the Admin navbar link becomes visible without manual page code changes.",
+        "For an authenticated non-admin principal, the admin-status query resolves to false and the Admin navbar link remains hidden.",
+        "No runtime errors occur from missing backend methods during admin-status checks (e.g., in the navbar and in admin diagnostics)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo; only add backend/migration.mo if a stable-state upgrade is required.",
-    "Do not modify files under frontend/src/components/ui or any paths listed in frontend.immutablePaths.",
-    "Use English for all user-facing UI text.",
-    "Do not add external databases or third-party storage/services for video hosting."
+    "Do not edit files under frontend/src/components/ui (shadcn components are read-only).",
+    "Do not edit frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, or frontend/src/main.tsx (immutable paths).",
+    "Keep all backend logic in the single Motoko actor in backend/main.mo; add migration code only if state upgrades are required."
   ],
   "nonGoals": [
-    "Building real-time updates (WebSockets) for new listings.",
-    "Adding third-party authentication providers (only Internet Identity).",
-    "Adding external video hosting/CDN integrations or storing large video files off-canister."
+    "Do not implement an admin signup flow or change how admin privileges are granted beyond what is required to correctly detect admin status for showing the navbar link.",
+    "Do not add new pages or routes beyond using the existing /admin route already present."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

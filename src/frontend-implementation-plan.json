@@ -1,105 +1,43 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Improve property creation error visibility, admin guidance, and reliable video support",
+  "title": "Conditional Admin navbar link (admins only) with consistent nav ordering",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Surface specific property creation failure reasons (permission, request too large, invalid input) and guide users with clear next steps in the Properties UI.",
+      "summary": "Ensure header navbar ordering is Home, Properties, Inquiries, Admin, and show Admin only to authenticated admins across desktop and mobile (including on Home).",
       "acceptanceCriteria": [
-        "When property creation fails, the UI displays a specific error message that distinguishes at least: (1) permission/admin issue, (2) request too large (payload/video/image too big), and (3) generic backend failure.",
-        "The error message shown to the user must not always be the generic string “Failed to create property. Please try again.” if a more specific reason is available from the canister/agent error.",
-        "The Properties page shows clear next-step guidance when the user is authenticated but not an admin (e.g., “You are logged in but do not have admin access.”)."
+        "When logged in as a non-admin, the navbar shows Home, Properties, Inquiries, and does not show Admin.",
+        "When logged in as an admin, the navbar shows Home, Properties, Inquiries, Admin (Admin appears after Inquiries).",
+        "This ordering is consistent in both desktop and mobile header navigation.",
+        "The Inquiries link is present on the Home page as well (so the Admin link can consistently appear after it)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/icError.ts",
-          "operation": "create",
-          "description": "Add a small error-normalization utility that inspects thrown agent/canister errors and maps them to user-facing English messages with categories (permission/admin, request too large, invalid input, generic). This will be used to ensure the UI surfaces the real underlying reason when available."
-        },
-        {
-          "path": "frontend/src/hooks/usePropertyListings.ts",
+          "path": "frontend/src/components/layout/Header.tsx",
           "operation": "modify",
-          "description": "Use the new IC error-normalization utility to stop masking backend/agent messages with a generic string. Ensure create/update/delete and list failures produce actionable, categorized English errors (including explicit permission/admin vs request-too-large vs generic backend failure). Also ensure traps/messages are surfaced when safe and relevant."
-        },
-        {
-          "path": "frontend/src/components/properties/InlinePropertyForm.tsx",
-          "operation": "modify",
-          "description": "Ensure form-level submission errors display the normalized, specific message (permission vs request-too-large vs invalid input) and include user guidance where appropriate (e.g., reduce images/video size)."
-        },
-        {
-          "path": "frontend/src/pages/PropertiesPage.tsx",
-          "operation": "modify",
-          "description": "When the user is authenticated but not an admin, render a clear English guidance section explaining that listing management is admin-only and what to do next. Use existing authentication/authorization infrastructure (from the selected authorization component) to decide what to show; verify the component's usage instructions before implementing."
+          "description": "Update desktop and mobile nav rendering so Inquiries is always present (including on '/'), enforce consistent link order (Home, Properties, Inquiries, then conditional Admin), and keep Admin hidden unless the authenticated user is an admin. Verify the component's usage instructions before implementing (authorization: role-based access control drives the admin visibility via the admin-check hook)."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Make property video support reliable by validating YouTube URLs, enforcing safe upload limits client-side, and ensuring video renders correctly on property cards with clear messaging.",
+      "summary": "Make frontend admin-status detection reliably resolve to a boolean for authenticated users by calling the backend admin-check function consistently (with safe fallback between isCallerAdmin() and checkIfCallerIsAdmin()).",
       "acceptanceCriteria": [
-        "In the property create/edit form, adding a valid YouTube URL saves successfully and renders as an embedded video on the property card.",
-        "If a user attempts to upload a video file that is too large to be safely stored/sent (based on the app’s configured limit), the form blocks submission and shows a clear English error explaining the size limit.",
-        "If a user uploads a video file within the configured limit, it saves successfully and plays via an HTML5 <video> element on the property card.",
-        "Backend rejects invalid video values (neither a YouTube URL nor a data:video/* data URL) with a clear trap message; the frontend surfaces this message.",
-        "Backend enforces a maximum allowed size/length for the video text field (and rejects overly large payloads early with a clear trap message)."
+        "For an authenticated admin principal, the admin-status query resolves to true and the Admin navbar link becomes visible without manual page code changes.",
+        "For an authenticated non-admin principal, the admin-status query resolves to false and the Admin navbar link remains hidden.",
+        "No runtime errors occur from missing backend methods during admin-status checks (e.g., in the navbar and in admin diagnostics)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/utils/videoFileToDataUrl.ts",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Reduce the maximum allowed video upload size to a conservative limit suitable for Internet Computer request constraints, and update the thrown error message to clearly state the limit in English. Keep validation for video MIME type."
+          "description": "Harden useIsCallerAdmin() to always return a boolean for authenticated users by attempting actor.isCallerAdmin() first and gracefully falling back to actor.checkIfCallerIsAdmin() if needed; also ensure missing-method cases do not throw runtime errors and unauthorized-style errors resolve to false. Verify the component's usage instructions before implementing (authorization: role-based access control admin check)."
         },
         {
-          "path": "frontend/src/components/properties/InlinePropertyForm.tsx",
+          "path": "frontend/src/hooks/useAdminDiagnostics.ts",
           "operation": "modify",
-          "description": "Add explicit client-side validation to prevent submitting overly large video payloads (including base64/data URL overhead) and display a clear English error. Keep YouTube URL validation reliable using the existing YouTube utilities; ensure the UI messaging clarifies that YouTube URLs are recommended and only one video is supported."
-        },
-        {
-          "path": "frontend/src/utils/youtube.ts",
-          "operation": "modify",
-          "description": "Harden YouTube URL parsing/validation for common formats (including additional variants such as shorts/live URLs if currently not handled) to improve reliability of YouTube embeds in listings."
-        },
-        {
-          "path": "frontend/src/components/properties/PropertyCard.tsx",
-          "operation": "modify",
-          "description": "Ensure video rendering is robust: valid YouTube URLs always embed via iframe and uploaded videos always play via HTML5 video. For invalid/unsupported video values, display an English error state (and rely on normalized backend trap messages when surfaced)."
-        },
-        {
-          "path": "frontend/src/hooks/usePropertyListings.ts",
-          "operation": "modify",
-          "description": "Ensure backend trap messages related to invalid video formats or payload size are surfaced to the UI (rather than replaced with a generic failure), using the shared IC error-normalization utility so users understand how to fix the issue."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Make admin-only property CRUD usable by providing a clear bootstrap/admin-access path and permission-specific UI feedback without exposing admin controls to non-admins.",
-      "acceptanceCriteria": [
-        "If the current caller is not an admin, the UI does not present the add/edit/delete controls and instead shows an explanation of why (admin-only).",
-        "If the canister has a configured bootstrap admin Principal (already present in backend), that Principal can create/update/delete properties successfully after logging in with Internet Identity.",
-        "If the current caller triggers an admin-only trap (create/update/delete property), the frontend surfaces a permission-specific error message (not a generic failure)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/PropertiesPage.tsx",
-          "operation": "modify",
-          "description": "Add an authenticated-but-not-admin state panel on the Properties page that clearly explains property management is admin-only and points the user to the Admin page / admin granting flow. Leverage existing auth/role checks from the selected authorization component; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/auth/BootstrapAdminHelper.tsx",
-          "operation": "modify",
-          "description": "Adjust copy to be unambiguous and action-oriented for non-admin authenticated users (English only), focusing on how to obtain admin access (sharing Principal ID, contacting an admin) and avoiding confusing statements about becoming admin automatically unless the app truly behaves that way."
-        },
-        {
-          "path": "frontend/src/hooks/usePropertyListings.ts",
-          "operation": "modify",
-          "description": "Ensure any authorization-related trap/exception from create/update/delete is detected and shown as a permission-specific message (admin-only) instead of a generic failure, using the shared IC error-normalization utility."
-        },
-        {
-          "path": "frontend/src/components/properties/PropertyList.tsx",
-          "operation": "modify",
-          "description": "When authenticated but not admin, update the empty-state message (and/or add a small note) to explicitly explain that only admins can add listings, while keeping public browsing unaffected."
+          "description": "Align diagnostics admin-status fetch with the same robust admin-check logic used by the navbar (prefer isCallerAdmin(), fallback to checkIfCallerIsAdmin()), ensuring the hook never breaks due to a missing backend method and always produces a boolean admin status when authenticated. Verify the component's usage instructions before implementing (authorization: role-based access control admin check)."
         }
       ]
     }

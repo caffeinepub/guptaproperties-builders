@@ -64,3 +64,10 @@ export function getYouTubeEmbedUrl(url: string): string | null {
   if (!videoId) return null;
   return `https://www.youtube.com/embed/${videoId}`;
 }
+
+/**
+ * Alias for getYouTubeEmbedUrl for backward compatibility
+ */
+export function getEmbedUrl(url: string): string | null {
+  return getYouTubeEmbedUrl(url);
+}

@@ -8,15 +8,35 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const _CaffeineStorageCreateCertificateResult = IDL.Record({
+  'method' : IDL.Text,
+  'blob_hash' : IDL.Text,
+});
+export const _CaffeineStorageRefillInformation = IDL.Record({
+  'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+});
+export const _CaffeineStorageRefillResult = IDL.Record({
+  'success' : IDL.Opt(IDL.Bool),
+  'topped_up_amount' : IDL.Opt(IDL.Nat),
+});
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const ExternalBlob = IDL.Vec(IDL.Nat8);
+export const PropertyInput = IDL.Record({
+  'title' : IDL.Text,
+  'video' : IDL.Opt(ExternalBlob),
+  'description' : IDL.Text,
+  'price' : IDL.Opt(IDL.Nat),
+  'location' : IDL.Opt(IDL.Text),
+  'images' : IDL.Vec(IDL.Text),
+});
 export const Property = IDL.Record({
   'id' : IDL.Nat,
   'title' : IDL.Text,
-  'video' : IDL.Opt(IDL.Text),
+  'video' : IDL.Opt(ExternalBlob),
   'description' : IDL.Text,
   'price' : IDL.Opt(IDL.Nat),
   'location' : IDL.Opt(IDL.Text),
@@ -25,21 +45,38 @@ export const Property = IDL.Record({
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 
 export const idlService = IDL.Service({
-  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-  'createProperty' : IDL.Func(
-      [
-        IDL.Text,
-        IDL.Text,
-        IDL.Opt(IDL.Nat),
-        IDL.Opt(IDL.Text),
-        IDL.Vec(IDL.Text),
-        IDL.Opt(IDL.Text),
-      ],
-      [Property],
+  '_caffeineStorageBlobIsLive' : IDL.Func(
+      [IDL.Vec(IDL.Nat8)],
+      [IDL.Bool],
+      ['query'],
+    ),
+  '_caffeineStorageBlobsToDelete' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      ['query'],
+    ),
+  '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+      [IDL.Vec(IDL.Vec(IDL.Nat8))],
+      [],
       [],
     ),
+  '_caffeineStorageCreateCertificate' : IDL.Func(
+      [IDL.Text],
+      [_CaffeineStorageCreateCertificateResult],
+      [],
+    ),
+  '_caffeineStorageRefillCashier' : IDL.Func(
+      [IDL.Opt(_CaffeineStorageRefillInformation)],
+      [_CaffeineStorageRefillResult],
+      [],
+    ),
+  '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'checkIfCallerIsAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'createProperty' : IDL.Func([PropertyInput], [Property], []),
   'deleteProperty' : IDL.Func([IDL.Nat], [], []),
+  'getCallerPrincipalAsText' : IDL.Func([], [IDL.Text], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getProperty' : IDL.Func([IDL.Nat], [IDL.Opt(Property)], ['query']),
@@ -51,33 +88,41 @@ export const idlService = IDL.Service({
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
   'listProperties' : IDL.Func([], [IDL.Vec(Property)], ['query']),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-  'updateProperty' : IDL.Func(
-      [
-        IDL.Nat,
-        IDL.Text,
-        IDL.Text,
-        IDL.Opt(IDL.Nat),
-        IDL.Opt(IDL.Text),
-        IDL.Vec(IDL.Text),
-        IDL.Opt(IDL.Text),
-      ],
-      [Property],
-      [],
-    ),
+  'updateProperty' : IDL.Func([IDL.Nat, PropertyInput], [Property], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const _CaffeineStorageCreateCertificateResult = IDL.Record({
+    'method' : IDL.Text,
+    'blob_hash' : IDL.Text,
+  });
+  const _CaffeineStorageRefillInformation = IDL.Record({
+    'proposed_top_up_amount' : IDL.Opt(IDL.Nat),
+  });
+  const _CaffeineStorageRefillResult = IDL.Record({
+    'success' : IDL.Opt(IDL.Bool),
+    'topped_up_amount' : IDL.Opt(IDL.Nat),
+  });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
   });
+  const ExternalBlob = IDL.Vec(IDL.Nat8);
+  const PropertyInput = IDL.Record({
+    'title' : IDL.Text,
+    'video' : IDL.Opt(ExternalBlob),
+    'description' : IDL.Text,
+    'price' : IDL.Opt(IDL.Nat),
+    'location' : IDL.Opt(IDL.Text),
+    'images' : IDL.Vec(IDL.Text),
+  });
   const Property = IDL.Record({
     'id' : IDL.Nat,
     'title' : IDL.Text,
-    'video' : IDL.Opt(IDL.Text),
+    'video' : IDL.Opt(ExternalBlob),
     'description' : IDL.Text,
     'price' : IDL.Opt(IDL.Nat),
     'location' : IDL.Opt(IDL.Text),
@@ -86,21 +131,38 @@ export const idlFactory = ({ IDL }) => {
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
   
   return IDL.Service({
-    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
-    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
-    'createProperty' : IDL.Func(
-        [
-          IDL.Text,
-          IDL.Text,
-          IDL.Opt(IDL.Nat),
-          IDL.Opt(IDL.Text),
-          IDL.Vec(IDL.Text),
-          IDL.Opt(IDL.Text),
-        ],
-        [Property],
+    '_caffeineStorageBlobIsLive' : IDL.Func(
+        [IDL.Vec(IDL.Nat8)],
+        [IDL.Bool],
+        ['query'],
+      ),
+    '_caffeineStorageBlobsToDelete' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        ['query'],
+      ),
+    '_caffeineStorageConfirmBlobDeletion' : IDL.Func(
+        [IDL.Vec(IDL.Vec(IDL.Nat8))],
+        [],
         [],
       ),
+    '_caffeineStorageCreateCertificate' : IDL.Func(
+        [IDL.Text],
+        [_CaffeineStorageCreateCertificateResult],
+        [],
+      ),
+    '_caffeineStorageRefillCashier' : IDL.Func(
+        [IDL.Opt(_CaffeineStorageRefillInformation)],
+        [_CaffeineStorageRefillResult],
+        [],
+      ),
+    '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'checkIfCallerIsAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'createProperty' : IDL.Func([PropertyInput], [Property], []),
     'deleteProperty' : IDL.Func([IDL.Nat], [], []),
+    'getCallerPrincipalAsText' : IDL.Func([], [IDL.Text], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getProperty' : IDL.Func([IDL.Nat], [IDL.Opt(Property)], ['query']),
@@ -112,19 +174,7 @@ export const idlFactory = ({ IDL }) => {
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
     'listProperties' : IDL.Func([], [IDL.Vec(Property)], ['query']),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
-    'updateProperty' : IDL.Func(
-        [
-          IDL.Nat,
-          IDL.Text,
-          IDL.Text,
-          IDL.Opt(IDL.Nat),
-          IDL.Opt(IDL.Text),
-          IDL.Vec(IDL.Text),
-          IDL.Opt(IDL.Text),
-        ],
-        [Property],
-        [],
-      ),
+    'updateProperty' : IDL.Func([IDL.Nat, PropertyInput], [Property], []),
   });
 };
 

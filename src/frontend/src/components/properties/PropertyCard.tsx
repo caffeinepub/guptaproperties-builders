@@ -1,17 +1,18 @@
 import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { Alert, AlertDescription } from '../ui/alert';
+import { Edit, Trash2, MapPin, DollarSign, Loader2, AlertCircle } from 'lucide-react';
 import PropertyImageGallery from './PropertyImageGallery';
 import InlinePropertyForm from './InlinePropertyForm';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
-import { MapPin, IndianRupee, Edit, Trash2, Loader2, AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription } from '../ui/alert';
-import { getYouTubeEmbedUrl, isYouTubeUrl } from '../../utils/youtube';
-import type { Property } from '../../backend';
+import { getEmbedUrl } from '../../utils/youtube';
+import { useChunkedVideoPlayback } from '../../hooks/useChunkedVideoPlayback';
+import { getVideoType } from '../../types/propertyVideo';
+import type { Property, ExternalBlob } from '../../backend';
 
 interface PropertyCardProps {
   property: Property;
-  isAdmin: boolean;
   onUpdate?: (data: {
     id: bigint;
     title: string;
@@ -19,37 +20,35 @@ interface PropertyCardProps {
     price: bigint | null;
     location: string | null;
     images: string[];
-    video: string | null;
+    video: ExternalBlob | string | null;
   }) => void;
   onDelete?: (id: bigint) => void;
   isUpdating?: boolean;
   isDeleting?: boolean;
   updateError?: string | null;
+  deleteError?: string | null;
+  isAdmin?: boolean;
 }
 
 export default function PropertyCard({
   property,
-  isAdmin,
   onUpdate,
   onDelete,
   isUpdating = false,
   isDeleting = false,
   updateError = null,
+  deleteError = null,
+  isAdmin = false,
 }: PropertyCardProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleSave = (data: {
+  const handleUpdate = (data: {
     title: string;
     description: string;
     price: bigint | null;
     location: string | null;
     images: string[];
-    video: string | null;
+    video: ExternalBlob | string | null;
   }) => {
     if (onUpdate) {
       onUpdate({
@@ -57,29 +56,84 @@ export default function PropertyCard({
         ...data,
       });
     }
-  };
-
-  const handleCancel = () => {
     setIsEditing(false);
   };
 
   const handleDelete = () => {
-    if (onDelete) {
+    if (onDelete && window.confirm('Are you sure you want to delete this property?')) {
       onDelete(property.id);
     }
-    setShowDeleteConfirm(false);
   };
 
-  // Render video component with improved error handling
-  const renderVideo = () => {
-    if (!property.video) return null;
+  // Determine video type
+  const videoType = getVideoType(property.video);
+  const videoPlayback = useChunkedVideoPlayback(
+    videoType.type === 'uploaded' ? videoType.blob : null
+  );
 
-    // Check if it's a YouTube URL
-    if (isYouTubeUrl(property.video)) {
-      const embedUrl = getYouTubeEmbedUrl(property.video);
-      if (embedUrl) {
-        return (
-          <div className="aspect-video w-full overflow-hidden rounded-t-lg">
+  if (isEditing) {
+    return (
+      <InlinePropertyForm
+        property={property}
+        onSave={handleUpdate}
+        onCancel={() => setIsEditing(false)}
+        isSaving={isUpdating}
+        error={updateError}
+      />
+    );
+  }
+
+  const embedUrl = videoType.type === 'youtube' ? getEmbedUrl(videoType.url) : null;
+
+  return (
+    <Card className="overflow-hidden">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-2">
+          <CardTitle className="text-xl">{property.title}</CardTitle>
+          {isAdmin && (
+            <div className="flex gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsEditing(true)}
+                disabled={isUpdating || isDeleting}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDelete}
+                disabled={isUpdating || isDeleting}
+              >
+                {isDeleting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        {/* Error Messages */}
+        {(updateError || deleteError) && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{updateError || deleteError}</AlertDescription>
+          </Alert>
+        )}
+
+        {/* Image Gallery */}
+        {property.images && property.images.length > 0 && (
+          <PropertyImageGallery images={property.images} title={property.title} />
+        )}
+
+        {/* Video Section */}
+        {videoType.type === 'youtube' && embedUrl && (
+          <div className="aspect-video w-full overflow-hidden rounded-lg">
             <iframe
               src={embedUrl}
               title="Property video"
@@ -88,144 +142,58 @@ export default function PropertyCard({
               allowFullScreen
             />
           </div>
-        );
-      } else {
-        return (
-          <Alert variant="destructive" className="m-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>Unable to load YouTube video. Please check the URL.</AlertDescription>
-          </Alert>
-        );
-      }
-    }
+        )}
 
-    // Check if it's a data URL (uploaded video)
-    if (property.video.startsWith('data:video/')) {
-      return (
-        <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-black">
-          <video
-            src={property.video}
-            controls
-            className="h-full w-full"
-            preload="metadata"
-          >
-            Your browser does not support the video tag.
-          </video>
+        {videoType.type === 'uploaded' && (
+          <div className="aspect-video w-full overflow-hidden rounded-lg bg-muted">
+            {videoPlayback.isLoading && (
+              <div className="flex h-full items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            )}
+            {videoPlayback.error && (
+              <div className="flex h-full items-center justify-center p-4">
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{videoPlayback.error}</AlertDescription>
+                </Alert>
+              </div>
+            )}
+            {videoPlayback.objectUrl && !videoPlayback.isLoading && !videoPlayback.error && (
+              <video
+                src={videoPlayback.objectUrl}
+                controls
+                className="h-full w-full"
+                onError={() => {
+                  console.error('Video playback error');
+                }}
+              >
+                Your browser does not support the video tag.
+              </video>
+            )}
+          </div>
+        )}
+
+        {/* Property Details */}
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">{property.description}</p>
+
+          <div className="flex flex-wrap gap-2">
+            {property.price && (
+              <Badge variant="secondary" className="gap-1">
+                <DollarSign className="h-3 w-3" />
+                ₹{property.price.toString()}
+              </Badge>
+            )}
+            {property.location && (
+              <Badge variant="outline" className="gap-1">
+                <MapPin className="h-3 w-3" />
+                {property.location}
+              </Badge>
+            )}
+          </div>
         </div>
-      );
-    }
-
-    // Invalid video format
-    return (
-      <Alert variant="destructive" className="m-4">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Invalid video format. Videos must be YouTube URLs or uploaded video files.
-        </AlertDescription>
-      </Alert>
-    );
-  };
-
-  // Show form when editing
-  if (isEditing) {
-    return (
-      <InlinePropertyForm
-        property={property}
-        onSave={handleSave}
-        onCancel={handleCancel}
-        isSaving={isUpdating}
-        error={updateError}
-      />
-    );
-  }
-
-  // Show normal card when not editing
-  return (
-    <>
-      <Card className="flex h-full flex-col overflow-hidden transition-shadow hover:shadow-lg">
-        {property.video ? renderVideo() : <PropertyImageGallery images={property.images} title={property.title} />}
-        
-        <CardHeader>
-          <CardTitle className="line-clamp-2">{property.title}</CardTitle>
-          {property.location && (
-            <CardDescription className="flex items-center gap-1">
-              <MapPin className="h-4 w-4" />
-              {property.location}
-            </CardDescription>
-          )}
-        </CardHeader>
-
-        <CardContent className="flex flex-1 flex-col gap-4">
-          {property.price && (
-            <div className="flex items-center gap-1 text-xl font-bold text-primary">
-              <IndianRupee className="h-5 w-5" />
-              {property.price.toString()}
-            </div>
-          )}
-
-          <p className="line-clamp-3 flex-1 text-sm text-muted-foreground">
-            {property.description}
-          </p>
-
-          {/* Show image gallery below description if video is present */}
-          {property.video && property.images.length > 0 && (
-            <div className="border-t pt-4">
-              <PropertyImageGallery images={property.images} title={property.title} />
-            </div>
-          )}
-
-          {isAdmin && (
-            <div className="flex gap-2 border-t pt-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleEdit}
-                className="flex-1"
-                disabled={isUpdating || isDeleting}
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setShowDeleteConfirm(true)}
-                className="flex-1"
-                disabled={isUpdating || isDeleting}
-              >
-                {isDeleting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Deleting...
-                  </>
-                ) : (
-                  <>
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Property</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{property.title}"? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+      </CardContent>
+    </Card>
   );
 }

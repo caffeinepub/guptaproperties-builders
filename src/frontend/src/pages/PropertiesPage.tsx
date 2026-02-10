@@ -7,7 +7,8 @@ import InlinePropertyForm from '../components/properties/InlinePropertyForm';
 import { Button } from '../components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
 import { Card, CardContent } from '../components/ui/card';
-import { Plus, Loader2, AlertCircle, Shield, Info } from 'lucide-react';
+import { Plus, Loader2, AlertCircle, Shield } from 'lucide-react';
+import type { ExternalBlob } from '../backend';
 
 export default function PropertiesPage() {
   const { identity, login, loginStatus } = useInternetIdentity();
@@ -55,7 +56,7 @@ export default function PropertiesPage() {
     price: bigint | null;
     location: string | null;
     images: string[];
-    video: string | null;
+    video: ExternalBlob | string | null;
   }) => {
     createMutation.mutate(data);
   };
@@ -67,7 +68,7 @@ export default function PropertiesPage() {
     price: bigint | null;
     location: string | null;
     images: string[];
-    video: string | null;
+    video: ExternalBlob | string | null;
   }) => {
     updateMutation.mutate(data);
   };
