@@ -1,34 +1,28 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T12:30:56.676Z",
+  "generatedAt": "2026-02-10T16:13:40.373Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 2,
-    "implemented": 1,
+    "implemented": 0,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Ensure the principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` is granted admin privileges in the existing backend admin system, without removing or replacing any existing admins.",
+        "summary": "Ensure the Internet Identity principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` is granted the `#admin` role in the backend admin system, without removing or replacing any existing admins.",
         "status": "unknown",
         "plannedFiles": [],
         "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Apply the admin addition for principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` in both environments: the draft canister deployment and the production canister deployment.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/AdminPage.tsx",
-          "frontend/src/hooks/useAdminDiagnostics.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/AdminPage.tsx",
-          "frontend/src/hooks/useAdminDiagnostics.ts"
-        ]
+        "summary": "Apply the admin grant for principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` in a way that persists across canister upgrades and is applied consistently in both draft and production deployments.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
@@ -36,10 +30,11 @@
     "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/hooks/useAdminDiagnostics.ts",
-    "frontend/src/pages/AdminPage.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

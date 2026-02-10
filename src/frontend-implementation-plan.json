@@ -1,27 +1,6 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Frontend diagnostics to validate admin access across draft and production deployments",
-  "requirements": [
-    {
-      "id": "REQ-2",
-      "summary": "Provide clear UI diagnostics to verify the new admin principal has access in both draft and production deployments.",
-      "acceptanceCriteria": [
-        "In the draft deployment, `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` has admin access.",
-        "In the production deployment, `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` has admin access."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/AdminPage.tsx",
-          "operation": "modify",
-          "description": "Add a small \"Deployment/Environment\" diagnostics section to the Admin page (visible in non-admin and admin states) that shows enough runtime context (e.g., current origin/host and any available build-time network indicator) and a short verification checklist instructing operators to test admin access by logging in as the specified principal in BOTH the draft and production URLs and confirming the page reports admin=true via existing diagnostics. Keep UI changes minimal per non-goals."
-        },
-        {
-          "path": "frontend/src/hooks/useAdminDiagnostics.ts",
-          "operation": "modify",
-          "description": "Extend diagnostics returned to the Admin page with additional frontend-side context useful for cross-environment verification (e.g., current window.location origin/host and a derived environment label), so the UI can display which deployment is being checked without requiring backend changes."
-        }
-      ]
-    }
-  ]
+  "title": "Frontend plan (no changes required) — grant admin privileges to principal",
+  "requirements": []
 }

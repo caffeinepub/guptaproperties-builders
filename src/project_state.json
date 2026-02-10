@@ -3,32 +3,37 @@
   "projectStateVersion": 3,
   "summary": "New project",
   "architectural_notes": [
-    "Admin system: add principal fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe as an additional admin (do not replace existing admins).",
-    "Admin changes should be applied to both draft and production environments (keep admin lists in sync)."
+    "Admin access should support multiple Internet Identity principals (additive admins)."
   ],
   "known_issues": [],
   "isFixRequest": false,
-  "existing_features": [
-    {
-      "id": "feature-apply-the-admin-addition-for-principal-fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe-in-both-environments-the-draft-canister-deployment-and-the-production-canister-deployment",
-      "title": "Apply the admin addition for principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` in both environments: the draft canister deployment and the production canister deployment.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    }
-  ],
+  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Ensure the principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` is granted admin privileges in the existing backend admin system, without removing or replacing any existing admins.",
+      "summary": "Add Internet Identity principal fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe as an additional admin for the live app",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Ensure the Internet Identity principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` is granted the `#admin` role in the backend admin system, without removing or replacing any existing admins.",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Apply the admin grant for principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` in a way that persists across canister upgrades and is applied consistently in both draft and production deployments.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
     }
   ],
-  "projectName": "Add new admin principal alongside existing admins in both draft and production",
+  "gameProjectType": "none",
+  "projectName": "Grant additional admin privileges to principal fxms2-qslpu-…-hqe (live app)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

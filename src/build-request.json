@@ -1,51 +1,57 @@
 {
   "kind": "build_request",
-  "title": "Add new admin principal alongside existing admins in both draft and production",
+  "title": "Grant additional admin privileges to principal fxms2-qslpu-…-hqe (live app)",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Ensure the principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` is granted admin privileges in the existing backend admin system, without removing or replacing any existing admins.",
+      "text": "Ensure the Internet Identity principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` is granted the `#admin` role in the backend admin system, without removing or replacing any existing admins.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-user-principal",
+          "msg-user-confirm"
         ],
         "quotes": [
-          "this new admin be added in addition to the existing admins, and both draft and production"
+          "This principal id showing in live ... fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe",
+          "1st option yes"
         ]
       },
       "acceptanceCriteria": [
-        "Existing admins remain admins after the change (no admin principals are removed).",
-        "When authenticated as `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe`, the backend `checkIfCallerIsAdmin()` returns `true`."
+        "When logged in as `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe`, calling `checkIfCallerIsAdmin` returns `true`.",
+        "Admin-only backend methods (e.g., `createProperty`, `updateProperty`, `deleteProperty`, `grantAdmin`, `revokeAdmin`) do not trap with \"Unauthorized: Admin access required\" for this principal.",
+        "Existing admin principals (already in the canister state) remain admins after this change."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Apply the admin addition for principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` in both environments: the draft canister deployment and the production canister deployment.",
-      "target": "unknown",
+      "text": "Apply the admin grant for principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` in a way that persists across canister upgrades and is applied consistently in both draft and production deployments.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-user-confirm"
         ],
         "quotes": [
-          "this new admin be added in addition to the existing admins, and both draft and production"
+          "1st option yes"
         ]
       },
       "acceptanceCriteria": [
-        "In the draft deployment, `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` has admin access.",
-        "In the production deployment, `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` has admin access."
+        "After an upgrade, the principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` is still an admin (admin check remains `true`).",
+        "The implementation does not depend on manual post-deploy UI actions to re-grant admin on every deployment.",
+        "No backend state unrelated to admin roles is lost during the change (e.g., property listings remain intact if they existed previously)."
       ]
     }
   ],
   "constraints": [
     "Backend must remain a single Motoko actor in `backend/main.mo`.",
-    "Do not modify any frontend files under `frontend/src/components/ui` or the immutable hook/entrypoint paths listed in SYSTEM_CONTEXT."
+    "Generate `backend/migration.mo` only if required to preserve/upgrade existing state (conditional migration policy).",
+    "Do not modify any files under `frontend/src/components/ui` or other immutable frontend paths listed in SYSTEM_CONTEXT.",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Do not redesign or modify the Admin UI/UX beyond what is necessary to support the backend admin addition.",
-    "Do not implement new authentication methods beyond Internet Identity.",
-    "Do not add new unrelated property/inquiry features."
+    "Do not implement third-party authentication providers; only Internet Identity is supported.",
+    "Do not add new admin UI features beyond what is necessary to validate the admin grant.",
+    "Do not change property listing CRUD behavior except as needed to validate admin authorization."
   ],
   "imageRequirements": {
     "required": [],

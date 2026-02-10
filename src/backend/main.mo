@@ -53,7 +53,7 @@ actor {
   // ------------------------------------------
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can save profiles");
+      Runtime.trap("Unauthorized: Only users can view profiles");
     };
     userProfiles.get(caller);
   };
@@ -93,10 +93,12 @@ actor {
   // Property CRUD Operations
   // ------------------------------------------
   public query ({ caller }) func listProperties() : async [Property] {
+    // Public endpoint - no authorization required
     propertiesState.values().toArray();
   };
 
   public query ({ caller }) func getProperty(_id : Nat) : async ?Property {
+    // Public endpoint - no authorization required
     propertiesState.get(_id);
   };
 
@@ -184,11 +186,6 @@ actor {
     if (not AccessControl.isAdmin(accessControlState, caller)) {
       Runtime.trap("Unauthorized: Admin access required");
     };
-
-    // Since getCurrentAdmins is not available in the access-control module,
-    // we cannot return the bootstrap admin here anymore.
-    // The actual implementation would depend on the internal structure of AccessControlState
-    // [BOOTSTRAP_ADMIN.toText()];
-    ["BOOTSTRAP_ADMIN"];
+    [];
   };
 };
