@@ -137,13 +137,16 @@ export interface backendInterface {
     checkIfCallerIsAdmin(): Promise<boolean>;
     createProperty(input: PropertyInput): Promise<Property>;
     deleteProperty(id: bigint): Promise<void>;
+    getAdminsList(): Promise<Array<string>>;
     getCallerPrincipalAsText(): Promise<string>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getProperty(_id: bigint): Promise<Property | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    grantAdmin(user: Principal): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     listProperties(): Promise<Array<Property>>;
+    revokeAdmin(user: Principal): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateProperty(id: bigint, input: PropertyInput): Promise<Property>;
 }
@@ -304,6 +307,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getAdminsList(): Promise<Array<string>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAdminsList();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAdminsList();
+            return result;
+        }
+    }
     async getCallerPrincipalAsText(): Promise<string> {
         if (this.processError) {
             try {
@@ -374,6 +391,20 @@ export class Backend implements backendInterface {
             return from_candid_opt_n18(this._uploadFile, this._downloadFile, result);
         }
     }
+    async grantAdmin(arg0: Principal): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.grantAdmin(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.grantAdmin(arg0);
+            return result;
+        }
+    }
     async isCallerAdmin(): Promise<boolean> {
         if (this.processError) {
             try {
@@ -400,6 +431,20 @@ export class Backend implements backendInterface {
         } else {
             const result = await this.actor.listProperties();
             return from_candid_vec_n22(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async revokeAdmin(arg0: Principal): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.revokeAdmin(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.revokeAdmin(arg0);
+            return result;
         }
     }
     async saveCallerUserProfile(arg0: UserProfile): Promise<void> {

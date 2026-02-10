@@ -2,39 +2,47 @@ import Map "mo:core/Map";
 import Nat "mo:core/Nat";
 import Principal "mo:core/Principal";
 import AccessControl "authorization/access-control";
+import Storage "blob-storage/Storage";
 
 module {
-  type UserProfile = {
+  type OldUserRole = {
+    #admin;
+    #user;
+    #guest;
+  };
+
+  type OldUserProfile = {
     name : Text;
   };
 
-  type Property = {
+  type OldProperty = {
     id : Nat;
     title : Text;
     description : Text;
     price : ?Nat;
     location : ?Text;
     images : [Text];
-    video : ?Text;
+    video : ?Storage.ExternalBlob;
   };
 
-  type OldActor = {
-    owner : ?Principal;
-    accessControlState : AccessControl.AccessControlState;
-    userProfiles : Map.Map<Principal, UserProfile>;
-    propertiesState : Map.Map<Nat, Property>;
+  type OldPropertyInput = {
+    title : Text;
+    description : Text;
+    price : ?Nat;
+    location : ?Text;
+    images : [Text];
+    video : ?Storage.ExternalBlob;
+  };
+
+  type Actor = {
+    userProfiles : Map.Map<Principal, OldUserProfile>;
+    propertiesState : Map.Map<Nat, OldProperty>;
     nextPropertyId : Nat;
-  };
-
-  type NewActor = {
-    owner : ?Principal;
     accessControlState : AccessControl.AccessControlState;
-    userProfiles : Map.Map<Principal, UserProfile>;
-    propertiesState : Map.Map<Nat, Property>;
-    nextPropertyId : Nat;
   };
 
-  public func run(old : OldActor) : NewActor {
+  // Migration function called by the main actor via the with-clause
+  public func run(old : Actor) : Actor {
     old;
   };
 };

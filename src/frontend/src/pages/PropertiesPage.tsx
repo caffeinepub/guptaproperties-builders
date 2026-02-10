@@ -5,9 +5,9 @@ import { useIsCallerAdmin } from '../hooks/useQueries';
 import PropertyList from '../components/properties/PropertyList';
 import InlinePropertyForm from '../components/properties/InlinePropertyForm';
 import { Button } from '../components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
+import { Alert, AlertDescription } from '../components/ui/alert';
 import { Card, CardContent } from '../components/ui/card';
-import { Plus, Loader2, AlertCircle, Shield } from 'lucide-react';
+import { Plus, Loader2, AlertCircle } from 'lucide-react';
 import type { ExternalBlob } from '../backend';
 
 export default function PropertiesPage() {
@@ -88,19 +88,6 @@ export default function PropertiesPage() {
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>{fetchError}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Show guidance for authenticated non-admins */}
-      {isAuthenticated && !adminLoading && !isAdmin && (
-        <Alert className="mb-6">
-          <Shield className="h-4 w-4" />
-          <AlertTitle>Admin Access Required</AlertTitle>
-          <AlertDescription>
-            You are logged in but do not have admin access. Property management (adding, editing, and deleting listings) is restricted to administrators only.
-            {' '}
-            <span className="font-medium">To request admin access, visit the Admin page and share your Principal ID with an existing administrator.</span>
-          </AlertDescription>
         </Alert>
       )}
 

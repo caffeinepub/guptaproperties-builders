@@ -2,10 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-site-header-navigation-so-that-the-navbar-order-is-always-home-properties-inquiries-then-admin-and-render-the-admin-link-only-when-the-current-authenticated-user-is-an-admin",
-      "featureTitle": "Update the site header navigation so that the navbar order is always: Home, Properties, Inquiries, then Admin; and render the Admin link only when the current authenticated user is an admin.",
+      "featureId": "feature-verify-and-adjust-the-admin-page-workflow-so-it-works-end-to-end-with-the-corrected-backend-admin-check-diagnostics-and-grant-revoke-actions-update-the-ui-state-after-mutations",
+      "featureTitle": "Verify and adjust the Admin page workflow so it works end-to-end with the corrected backend: admin check, diagnostics, and grant/revoke actions update the UI state after mutations.",
       "files": [
-        "frontend/src/components/layout/Header.tsx"
+        "frontend/src/components/admin/AdminManagementPanel.tsx",
+        "frontend/src/hooks/useAdminManagement.ts",
+        "frontend/src/pages/AdminPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -17,28 +19,7 @@
         "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-fix-admin-status-detection-so-the-frontend-s-admin-check-reliably-returns-a-boolean-for-authenticated-users-so-the-admin-navbar-link-can-appear-for-admins-ensure-the-backend-exposes-a-query-method-named-iscalleradmin-that-matches-the-frontend-call-signature-or-update-the-frontend-admin-check-hook-s-to-call-the-backend-s-existing-checkifcallerisadmin-endpoint-consistently",
-      "featureTitle": "Fix admin-status detection so the frontend’s admin check reliably returns a boolean for authenticated users (so the Admin navbar link can appear for admins). Ensure the backend exposes a query method named isCallerAdmin() that matches the frontend call signature, or update the frontend admin-check hook(s) to call the backend’s existing checkIfCallerIsAdmin() endpoint consistently.",
-      "files": [
-        "frontend/src/hooks/useAdminDiagnostics.ts",
-        "frontend/src/hooks/useQueries.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
+        "REQ-5"
       ],
       "confidence": "high"
     }

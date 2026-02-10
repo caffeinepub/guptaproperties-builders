@@ -1,28 +1,21 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Implement admin role handling tied to the user's Internet Identity and expose an Admin-only navigation entry in the app UI.",
+  "summary": "Build and fix an admin system for the live app, including persistent backend admin storage with initial admin setup and a frontend UI to add/revoke admins.",
   "architectural_notes": [
-    "Admin access is determined by the user's Internet Identity; the Admin navbar button is conditionally rendered only for admins."
+    "Internet Identity issues different principals per dapp/domain; draft vs live domains will yield different principals, so admins must be stored/managed per-principal accordingly.",
+    "Admin list must be stored persistently in canister state (not hardcoded) and initialized with a chosen initial admin at deploy/upgrade."
   ],
   "known_issues": [
-    "User does not currently see the admin panel/admin button (no admin access or UI entry visible)."
+    "Admins disappear in live due to missing persistent admin storage and no initial admin being set; hardcoded admin list does not reflect state."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-the-site-header-navigation-so-that-the-navbar-order-is-always-home-properties-inquiries-then-admin-and-render-the-admin-link-only-when-the-current-authenticated-user-is-an-admin",
-      "title": "Update the site header navigation so that the navbar order is always: Home, Properties, Inquiries, then Admin; and render the Admin link only when the current authenticated user is an admin.",
+      "id": "feature-verify-and-adjust-the-admin-page-workflow-so-it-works-end-to-end-with-the-corrected-backend-admin-check-diagnostics-and-grant-revoke-actions-update-the-ui-state-after-mutations",
+      "title": "Verify and adjust the Admin page workflow so it works end-to-end with the corrected backend: admin check, diagnostics, and grant/revoke actions update the UI state after mutations.",
       "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-fix-admin-status-detection-so-the-frontend-s-admin-check-reliably-returns-a-boolean-for-authenticated-users-so-the-admin-navbar-link-can-appear-for-admins-ensure-the-backend-exposes-a-query-method-named-iscalleradmin-that-matches-the-frontend-call-signature-or-update-the-frontend-admin-check-hook-s-to-call-the-backend-s-existing-checkifcallerisadmin-endpoint-consistently",
-      "title": "Fix admin-status detection so the frontend’s admin check reliably returns a boolean for authenticated users (so the Admin navbar link can appear for admins). Ensure the backend exposes a query method named isCallerAdmin() that matches the frontend call signature, or update the frontend admin-check hook(s) to call the backend’s existing checkIfCallerIsAdmin() endpoint consistently.",
-      "reqIds": [
-        "REQ-2"
+        "REQ-5"
       ],
       "version": 1
     }
@@ -30,12 +23,50 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Automatically grant admin access to the user's Internet Identity and show an Admin navbar button (after Home, Properties, Inquiries) only to admin users",
+      "summary": "Fix backend admin system: persist admin storage in canister and set initial admin on deploy so admin does not disappear in live",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Add frontend admin-management UI (add/revoke admins and view admin list) to avoid calling endpoints manually",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Bootstrap backend admin authorization so that the principal `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is an admin immediately after a fresh install, and remains an admin after upgrades.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Persist backend authorization/admin state in stable memory so that admins do not disappear when switching from draft to live deployments or when upgrading the canister.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Ensure the backend supports multiple admins and exposes working admin-management endpoints compatible with the existing frontend Admin Management UI (grant and revoke admin privileges for other principals).",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Fix the backend admin diagnostics so `getAdminsList()` returns the actual current admin principal list from the backend authorization state (not a hardcoded list).",
+      "reqIds": [
+        "REQ-4"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Show Admin navbar button only for admins (after Home, Properties, Inquiries)",
+  "projectName": "Fix persistent admin system (bootstrap admin + real admin list) and ensure Admin UI works end-to-end",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

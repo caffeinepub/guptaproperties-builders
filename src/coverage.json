@@ -1,50 +1,70 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T10:05:02.604Z",
+  "generatedAt": "2026-02-10T12:19:18.187Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 5,
+    "implemented": 1,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the site header navigation so that the navbar order is always: Home, Properties, Inquiries, then Admin; and render the Admin link only when the current authenticated user is an admin.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/layout/Header.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/layout/Header.tsx"
-        ]
+        "summary": "Bootstrap backend admin authorization so that the principal `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is an admin immediately after a fresh install, and remains an admin after upgrades.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       },
       {
         "id": "REQ-2",
-        "summary": "Fix admin-status detection so the frontend’s admin check reliably returns a boolean for authenticated users (so the Admin navbar link can appear for admins). Ensure the backend exposes a query method named isCallerAdmin() that matches the frontend call signature, or update the frontend admin-check hook(s) to call the backend’s existing checkIfCallerIsAdmin() endpoint consistently.",
+        "summary": "Persist backend authorization/admin state in stable memory so that admins do not disappear when switching from draft to live deployments or when upgrading the canister.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Ensure the backend supports multiple admins and exposes working admin-management endpoints compatible with the existing frontend Admin Management UI (grant and revoke admin privileges for other principals).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Fix the backend admin diagnostics so `getAdminsList()` returns the actual current admin principal list from the backend authorization state (not a hardcoded list).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Verify and adjust the Admin page workflow so it works end-to-end with the corrected backend: admin check, diagnostics, and grant/revoke actions update the UI state after mutations.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/hooks/useAdminDiagnostics.ts"
+          "frontend/src/hooks/useAdminManagement.ts",
+          "frontend/src/components/admin/AdminManagementPanel.tsx",
+          "frontend/src/pages/AdminPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/hooks/useAdminDiagnostics.ts"
+          "frontend/src/hooks/useAdminManagement.ts",
+          "frontend/src/components/admin/AdminManagementPanel.tsx",
+          "frontend/src/pages/AdminPage.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
+    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/layout/Header.tsx",
-    "frontend/src/hooks/useAdminDiagnostics.ts",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/components/admin/AdminManagementPanel.tsx",
+    "frontend/src/hooks/useAdminManagement.ts",
+    "frontend/src/pages/AdminPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

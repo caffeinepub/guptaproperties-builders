@@ -11,6 +11,7 @@ export interface AdminDiagnostics {
 /**
  * Hook to fetch admin diagnostics from the backend for troubleshooting.
  * Returns the backend-reported caller principal, admin list, and admin status.
+ * Automatically refetches when invalidated by admin grant/revoke mutations.
  */
 export function useAdminDiagnostics() {
   const { actor, isFetching: actorFetching } = useActor();
@@ -44,9 +45,24 @@ export function useAdminDiagnostics() {
           }
         }
 
-        // Note: Backend doesn't have listAdmins() yet, so we'll return empty array
-        // This will be populated when backend adds the method
-        const adminList: string[] = [];
+        // Fetch admin list with isolated error handling
+        let adminList: string[] = [];
+        try {
+          if (typeof actor.getAdminsList === 'function') {
+            adminList = await actor.getAdminsList();
+          }
+        } catch (error: any) {
+          // If unauthorized or anonymous, silently fail and return empty list
+          // This allows the rest of the diagnostics to still be displayed
+          if (error.message?.includes('Unauthorized') || error.message?.includes('Anonymous') || error.message?.includes('Admin access required')) {
+            console.log('Admin list not available (requires admin access)');
+            adminList = [];
+          } else {
+            // For other errors, log but don't fail the entire query
+            console.warn('Failed to fetch admin list:', error);
+            adminList = [];
+          }
+        }
 
         return {
           backendCallerPrincipal: callerPrincipal,
@@ -60,7 +76,8 @@ export function useAdminDiagnostics() {
     },
     enabled: !!actor && !actorFetching && !!identity,
     retry: 1,
-    staleTime: 0, // Always fetch fresh data
+    staleTime: 0, // Always fetch fresh data to reflect latest admin changes
+    refetchOnMount: 'always', // Ensure fresh data on mount
   });
 
   return {

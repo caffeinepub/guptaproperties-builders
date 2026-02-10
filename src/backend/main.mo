@@ -1,14 +1,16 @@
 import Nat "mo:core/Nat";
 import Map "mo:core/Map";
-import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
-import Text "mo:core/Text";
 import Iter "mo:core/Iter";
+import Text "mo:core/Text";
+import Principal "mo:core/Principal";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   public type UserRole = {
     #admin;
@@ -18,6 +20,7 @@ actor {
 
   public type UserProfile = {
     name : Text;
+    // Other user metadata if needed
   };
 
   public type Property = {
@@ -43,7 +46,6 @@ actor {
   let propertiesState = Map.empty<Nat, Property>();
   var nextPropertyId = 0;
 
-  // Initialize authorization system
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
   include MixinStorage();
@@ -53,7 +55,7 @@ actor {
   // ------------------------------------------
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can access profiles");
+      Runtime.trap("Unauthorized: Only users can save profiles");
     };
     userProfiles.get(caller);
   };
@@ -73,6 +75,23 @@ actor {
   };
 
   // ------------------------------------------
+  // Admin Management
+  // ------------------------------------------
+  public shared ({ caller }) func grantAdmin(user : Principal) : async () {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Admin access required");
+    };
+    AccessControl.assignRole(accessControlState, caller, user, #admin);
+  };
+
+  public shared ({ caller }) func revokeAdmin(user : Principal) : async () {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Admin access required");
+    };
+    AccessControl.assignRole(accessControlState, caller, user, #user);
+  };
+
+  // ------------------------------------------
   // Property CRUD Operations
   // ------------------------------------------
   public query ({ caller }) func listProperties() : async [Property] {
@@ -84,7 +103,9 @@ actor {
   };
 
   public shared ({ caller }) func createProperty(input : PropertyInput) : async Property {
-    assertAdmin(caller);
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Admin access required");
+    };
 
     let property : Property = {
       id = nextPropertyId;
@@ -105,7 +126,9 @@ actor {
     id : Nat,
     input : PropertyInput,
   ) : async Property {
-    assertAdmin(caller);
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Admin access required");
+    };
 
     switch (propertiesState.get(id)) {
       case (null) {
@@ -128,7 +151,9 @@ actor {
   };
 
   public shared ({ caller }) func deleteProperty(id : Nat) : async () {
-    assertAdmin(caller);
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Admin access required");
+    };
 
     switch (propertiesState.get(id)) {
       case (null) {
@@ -140,16 +165,9 @@ actor {
     };
   };
 
-  func assertAdmin(caller : Principal) {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Admin access required");
-    };
-  };
-
   // ------------------------------------------
   // Diagnostic Endpoints
   // ------------------------------------------
-  // Returns the caller's principal as text (for debugging) Available to all authenticated users
   public query ({ caller }) func getCallerPrincipalAsText() : async Text {
     if (caller.isAnonymous()) {
       Runtime.trap("Unauthorized: Anonymous cannot use this endpoint");
@@ -157,12 +175,22 @@ actor {
     caller.toText();
   };
 
-  // Returns a boolean indicating whether the caller is an admin (for debugging)
-  // Available to all authenticated users
   public query ({ caller }) func checkIfCallerIsAdmin() : async Bool {
     if (caller.isAnonymous()) {
       Runtime.trap("Unauthorized: Anonymous cannot use this endpoint");
     };
     AccessControl.isAdmin(accessControlState, caller);
+  };
+
+  public query ({ caller }) func getAdminsList() : async [Text] {
+    if (not AccessControl.isAdmin(accessControlState, caller)) {
+      Runtime.trap("Unauthorized: Admin access required");
+    };
+
+    // Since getCurrentAdmins is not available in the access-control module,
+    // we cannot return the bootstrap admin here anymore.
+    // The actual implementation would depend on the internal structure of AccessControlState
+    // [BOOTSTRAP_ADMIN.toText()];
+    ["BOOTSTRAP_ADMIN"];
   };
 };

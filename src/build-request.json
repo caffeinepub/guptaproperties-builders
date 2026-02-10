@@ -1,54 +1,116 @@
 {
   "kind": "build_request",
-  "title": "Show Admin navbar button only for admins (after Home, Properties, Inquiries)",
+  "title": "Fix persistent admin system (bootstrap admin + real admin list) and ensure Admin UI works end-to-end",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the site header navigation so that the navbar order is always: Home, Properties, Inquiries, then Admin; and render the Admin link only when the current authenticated user is an admin.",
-      "target": "frontend",
+      "text": "Bootstrap backend admin authorization so that the principal `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is an admin immediately after a fresh install, and remains an admin after upgrades.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "user-last"
+          "msg-1"
         ],
         "quotes": [
-          "add the Admin button in the navbar after Home, Properties, and Inquiries but admin button only appears to admins"
+          "fix admin system",
+          "2"
         ]
       },
       "acceptanceCriteria": [
-        "When logged in as a non-admin, the navbar shows Home, Properties, Inquiries, and does not show Admin.",
-        "When logged in as an admin, the navbar shows Home, Properties, Inquiries, Admin (Admin appears after Inquiries).",
-        "This ordering is consistent in both desktop and mobile header navigation.",
-        "The Inquiries link is present on the Home page as well (so the Admin link can consistently appear after it)."
+        "On a fresh canister install, `checkIfCallerIsAdmin()` returns true when called by principal `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` after authenticating via Internet Identity.",
+        "After upgrading the canister, the bootstrap principal is still an admin (no loss of admin privileges).",
+        "The bootstrap admin initialization does not require any frontend action or manual endpoint calls."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Fix admin-status detection so the frontend’s admin check reliably returns a boolean for authenticated users (so the Admin navbar link can appear for admins). Ensure the backend exposes a query method named isCallerAdmin() that matches the frontend call signature, or update the frontend admin-check hook(s) to call the backend’s existing checkIfCallerIsAdmin() endpoint consistently.",
-      "target": "both",
+      "text": "Persist backend authorization/admin state in stable memory so that admins do not disappear when switching from draft to live deployments or when upgrading the canister.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "user-last"
+          "msg-1"
         ],
         "quotes": [
-          "admin button only appears to admins"
+          "my admin gone in live site why",
+          "fix admin system",
+          "2"
         ]
       },
       "acceptanceCriteria": [
-        "For an authenticated admin principal, the admin-status query resolves to true and the Admin navbar link becomes visible without manual page code changes.",
-        "For an authenticated non-admin principal, the admin-status query resolves to false and the Admin navbar link remains hidden.",
-        "No runtime errors occur from missing backend methods during admin-status checks (e.g., in the navbar and in admin diagnostics)."
+        "Admin assignments made via backend admin-management endpoints survive a canister upgrade.",
+        "Admin assignments made in one deployment remain present when the same canister is accessed via the live site (no reset due to missing persistence)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Ensure the backend supports multiple admins and exposes working admin-management endpoints compatible with the existing frontend Admin Management UI (grant and revoke admin privileges for other principals).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "fix admin system",
+          "2"
+        ]
+      },
+      "acceptanceCriteria": [
+        "An admin can grant admin privileges to another valid Principal ID and the newly granted user is recognized as admin by the backend.",
+        "An admin can revoke admin privileges from another principal (and that principal is no longer recognized as admin by the backend).",
+        "If a user without admin privileges calls admin-management endpoints, the backend rejects with a clear English trap message indicating admin access is required.",
+        "The frontend mutations in `frontend/src/hooks/useAdminManagement.ts` succeed against the backend without requiring changes to immutable auth/actor hooks (i.e., the backend provides the methods/types the UI is calling)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Fix the backend admin diagnostics so `getAdminsList()` returns the actual current admin principal list from the backend authorization state (not a hardcoded list).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "my admin gone in live site why",
+          "fix admin system",
+          "2"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When called by an admin, `getAdminsList()` returns a list that includes all currently assigned admins (including the bootstrap admin).",
+        "When called by a non-admin, `getAdminsList()` is rejected with a clear English trap message indicating admin access is required.",
+        "The returned admin list changes immediately after grant/revoke operations (after the next query/refetch)."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Verify and adjust the Admin page workflow so it works end-to-end with the corrected backend: admin check, diagnostics, and grant/revoke actions update the UI state after mutations.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "2"
+        ]
+      },
+      "acceptanceCriteria": [
+        "`/admin` shows a login prompt when not authenticated, and shows the authenticated principal once logged in.",
+        "When logged in as an admin, the Admin Management panel can successfully grant/revoke admins and shows success/error states in English.",
+        "After a successful grant/revoke, the page reflects the updated admin status/diagnostics via React Query invalidation/refetch (no manual hard refresh required).",
+        "No changes are made to files listed as immutable by the platform (e.g., `frontend/src/hooks/useInternetIdentity.ts(x)`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, `frontend/src/components/ui/*`)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/src/components/ui (shadcn components are read-only).",
-    "Do not edit frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, or frontend/src/main.tsx (immutable paths).",
-    "Keep all backend logic in the single Motoko actor in backend/main.mo; add migration code only if state upgrades are required."
+    "Backend must remain a single Motoko actor with all logic in `backend/main.mo`.",
+    "Do not edit any frontend files under the immutable paths: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, and anything in `frontend/src/components/ui`.",
+    "Use English for all user-facing UI text and backend trap/error messages.",
+    "Do not introduce additional backend services, databases, WebSockets, or third-party authentication providers (Internet Identity only)."
   ],
   "nonGoals": [
-    "Do not implement an admin signup flow or change how admin privileges are granted beyond what is required to correctly detect admin status for showing the navbar link.",
-    "Do not add new pages or routes beyond using the existing /admin route already present."
+    "Implementing inquiries backend functionality (current inquiries hook is stubbed).",
+    "Adding non-admin feature changes unrelated to admin persistence/management (e.g., new property features, payments, messaging).",
+    "Integrating external auth providers or wallet-based authentication."
   ],
   "imageRequirements": {
     "required": [],

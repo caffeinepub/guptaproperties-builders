@@ -220,69 +220,67 @@ export default function AdminPage() {
               </Card>
             )}
             
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
+            <Alert>
+              <Lock className="h-4 w-4" />
               <AlertTitle>Access Denied</AlertTitle>
               <AlertDescription className="mt-2 space-y-2">
                 <p>
-                  You don't have admin access. The backend confirms that your principal 
-                  <span className="font-mono text-xs block mt-1 break-all">{diagnostics?.backendCallerPrincipal || 'unknown'}</span>
-                  is not in the admin list.
+                  You don't have admin privileges. To request access, share your Principal ID (shown above) with an existing admin.
                 </p>
-                <p className="font-semibold mt-3">To get admin access:</p>
-                <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li>Share your Principal ID (shown above) with an existing admin</li>
-                  <li>Ask them to grant you admin access through the Admin Management panel</li>
-                  <li>If no admins exist, the canister may need to be redeployed with your principal as the initial admin</li>
-                </ul>
               </AlertDescription>
             </Alert>
 
-            <div className="flex gap-3">
-              <Button
-                onClick={handleRefreshAll}
-                variant="default"
-                disabled={diagnosticsLoading}
-              >
-                <RefreshCw className={`mr-2 h-4 w-4 ${diagnosticsLoading ? 'animate-spin' : ''}`} />
-                Refresh Diagnostics
-              </Button>
-            </div>
+            <Button
+              onClick={handleRefreshAll}
+              variant="outline"
+              disabled={diagnosticsLoading}
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${diagnosticsLoading ? 'animate-spin' : ''}`} />
+              Refresh Status
+            </Button>
           </div>
         </div>
       </div>
     );
   }
 
-  // Authenticated and admin - show admin panel with diagnostics
+  // Admin user - show full admin panel
   return (
     <div className="min-h-screen bg-muted/20 py-12">
       <div className="container mx-auto px-4">
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-8 w-8 text-primary" />
-                <h1 className="text-3xl font-bold text-foreground md:text-4xl">Admin Panel</h1>
-              </div>
-              <p className="mt-2 text-muted-foreground">
-                Manage customer inquiries and admin access
-              </p>
-            </div>
-            <Button
-              onClick={handleRefreshAll}
-              variant="outline"
-              size="sm"
-              disabled={adminLoading || isLoading || diagnosticsLoading}
-            >
-              <RefreshCw className={`mr-2 h-4 w-4 ${(adminLoading || isLoading || diagnosticsLoading) ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground md:text-4xl">Admin Panel</h1>
+            <p className="mt-2 text-muted-foreground">
+              Manage properties, inquiries, and admin access
+            </p>
           </div>
+          <Button
+            onClick={handleRefreshAll}
+            variant="outline"
+            size="sm"
+            disabled={diagnosticsLoading}
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${diagnosticsLoading ? 'animate-spin' : ''}`} />
+            Refresh
+          </Button>
         </div>
 
-        <div className="space-y-6">
-          {/* My Principal Card */}
+        <div className="space-y-8">
+          {/* Admin Status Card */}
+          <Card className="border-green-500 bg-green-50 dark:bg-green-950">
+            <CardContent className="flex items-center gap-3 py-4">
+              <ShieldCheck className="h-5 w-5 text-green-700 dark:text-green-300" />
+              <div>
+                <p className="font-medium text-green-900 dark:text-green-100">Admin Access Active</p>
+                <p className="text-sm text-green-700 dark:text-green-300">
+                  You have full administrative privileges
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Principal ID Card */}
           <MyPrincipalCard />
 
           {/* Admin Diagnostics Section */}
@@ -305,9 +303,7 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Backend Admin Check Result:</p>
-                  <p className="font-mono text-sm text-green-600 dark:text-green-400">
-                    {diagnostics.backendReportsIsAdmin ? 'Admin ✓' : 'Not Admin ✗'}
-                  </p>
+                  <p className="font-mono text-sm">{diagnostics.backendReportsIsAdmin ? 'Admin ✓' : 'Not Admin ✗'}</p>
                 </div>
                 {diagnostics.backendAdminList.length > 0 && (
                   <div>
@@ -323,52 +319,32 @@ export default function AdminPage() {
             </Card>
           )}
 
+          <Separator />
+
           {/* Admin Management Panel */}
-          {!adminLoading && isAdmin && (
-            <>
-              <Separator />
-              <AdminManagementPanel />
-            </>
-          )}
+          <AdminManagementPanel />
+
+          <Separator />
 
           {/* Inquiries Section */}
-          {!adminLoading && isAdmin && (
-            <>
-              <Separator />
-              <div>
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-2xl font-semibold">Customer Inquiries</h2>
-                  <Button
-                    onClick={() => refetch()}
-                    variant="outline"
-                    size="sm"
-                    disabled={isLoading}
-                  >
-                    <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-                    Refresh
-                  </Button>
-                </div>
-
-                {isLoading && (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                  </div>
-                )}
-
-                {isError && (
-                  <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Error Loading Inquiries</AlertTitle>
-                    <AlertDescription>
-                      {error instanceof Error ? error.message : 'Failed to load inquiries'}
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                {!isLoading && !isError && <InquiryList inquiries={inquiries} />}
+          <div>
+            <h2 className="mb-4 text-2xl font-semibold">Customer Inquiries</h2>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
-            </>
-          )}
+            ) : isError ? (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error Loading Inquiries</AlertTitle>
+                <AlertDescription>
+                  {error instanceof Error ? error.message : 'Failed to load inquiries'}
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <InquiryList inquiries={inquiries} />
+            )}
+          </div>
         </div>
       </div>
     </div>

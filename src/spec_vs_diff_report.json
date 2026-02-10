@@ -1,44 +1,61 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T10:05:02.601Z",
-  "summary": "Frontend header navigation was updated to render Admin conditionally for authenticated admins and to place it after Inquiries (desktop + likely mobile, though mobile section is truncated). Frontend admin-status detection was made more robust via a query hook that calls actor.isCallerAdmin() with fallback to actor.checkIfCallerIsAdmin(). However, the diff does not show the backend exposing the required isCallerAdmin() query method, and there is no evidence that the Home page includes an Inquiries link as required.",
+  "generatedAt": "2026-02-10T12:19:18.185Z",
+  "summary": "Diff adds a migration module and updates backend/main.mo with grant/revoke endpoints and various property/blob-storage related changes. Frontend admin UI hooks/panel/page were updated to call grantAdmin/revokeAdmin and invalidate React Query caches. However, the diff does not show implementation of the required bootstrap admin principal, stable persistence across upgrades, or a real getAdminsList() backed by authorization state.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Ensure the Inquiries link is present on the Home page as well (so the Admin link can consistently appear after it).",
-      "reason": "The diff shows Header navigation updates, but no changes or evidence in Home page code indicating an Inquiries link exists there. The provided diffs do not include frontend/src/pages/HomePage.tsx modifications.",
+      "requirement": "Bootstrap backend admin authorization so that the principal `enn3j-adkwy-i7cxf-gi4bs-ihisb-mpsqc-lozg5-coeen-cba7n-y352m-4ae` is an admin immediately after a fresh install, and remains an admin after upgrades.",
+      "reason": "backend/main.mo shows accessControlState initialized via AccessControl.initState() but no evidence of adding the specified bootstrap principal on install/init, nor any upgrade hooks ensuring it remains admin after upgrades.",
       "evidence": [
-        "frontend/src/components/layout/Header.tsx (modified; shows Inquiries link in header, but not Home page content)",
-        "frontend-file-summaries.txt (mentions HomePage content but does not evidence an Inquiries link)"
+        "backend/main.mo"
       ]
     },
     {
       "id": "REQ-2",
-      "requirement": "Ensure the backend exposes a query method named isCallerAdmin() that matches the frontend call signature, OR update the frontend to consistently call the backend’s existing checkIfCallerIsAdmin() endpoint; no runtime errors from missing backend methods.",
-      "reason": "Frontend now attempts actor.isCallerAdmin() first, but the backend diff excerpt does not show a public query method named isCallerAdmin(). Without it, the frontend will rely on fallback, but the requirement explicitly calls out adding isCallerAdmin() or consistently using the existing endpoint; the diff does not confirm the backend side of this contract.",
+      "requirement": "Persist backend authorization/admin state in stable memory so that admins do not disappear when switching from draft to live deployments or when upgrading the canister.",
+      "reason": "Diff does not show any stable variables, preupgrade/postupgrade logic, or other explicit stable-memory persistence for the authorization/admin state; accessControlState is a non-stable `let` initialized at runtime.",
       "evidence": [
-        "backend/main.mo (modified; truncated; no visible isCallerAdmin() definition in provided excerpt)",
-        "frontend/src/hooks/useQueries.ts (modified; calls actor.isCallerAdmin() with fallback to actor.checkIfCallerIsAdmin())"
+        "backend/main.mo",
+        "backend/migration.mo"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Fix the backend admin diagnostics so getAdminsList() returns the actual current admin principal list from the backend authorization state (not a hardcoded list).",
+      "reason": "No getAdminsList() implementation is shown/modified in the diff summary; therefore there is no evidence it returns the live authorization state or enforces admin-only access.",
+      "evidence": [
+        "backend/main.mo"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added an 'admin diagnostics' React Query hook that calls getCallerPrincipalAsText() and attempts admin-check methods with extra error handling, returning an (currently empty) admin list.",
-      "reason": "The BuildRequest only asked to conditionally show the Admin navbar link and fix admin-status detection; it did not request adding diagnostics tooling/hooks or calling getCallerPrincipalAsText().",
+      "description": "Introduced a separate backend migration module and `with migration = Migration.run` clause.",
+      "reason": "BuildRequest constraint states backend logic must remain in a single Motoko actor with all logic in `backend/main.mo`; adding `backend/migration.mo` moves logic/config outside main and was not requested as a feature.",
       "evidence": [
-        "frontend/src/hooks/useAdminDiagnostics.ts"
+        "backend/migration.mo",
+        "backend/main.mo"
+      ]
+    },
+    {
+      "description": "Added/expanded property CRUD and blob-storage integration (ExternalBlob video, MixinStorage, property state changes).",
+      "reason": "BuildRequest non-goals explicitly exclude non-admin feature changes unrelated to admin persistence/management; these backend changes appear unrelated to admin bootstrapping/persistence and admin list diagnostics.",
+      "evidence": [
+        "backend/main.mo",
+        "frontend-file-summaries.txt"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.72,
   "changed_files": [
     "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/layout/Header.tsx",
-    "frontend/src/hooks/useAdminDiagnostics.ts",
-    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/components/admin/AdminManagementPanel.tsx",
+    "frontend/src/hooks/useAdminManagement.ts",
+    "frontend/src/pages/AdminPage.tsx",
     "project_state.json"
   ]
 }

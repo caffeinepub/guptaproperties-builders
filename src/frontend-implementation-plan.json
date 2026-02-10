@@ -1,43 +1,32 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Conditional Admin navbar link (admins only) with consistent nav ordering",
+  "title": "Admin UI end-to-end workflow fixes (admin check, diagnostics, grant/revoke refresh)",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Ensure header navbar ordering is Home, Properties, Inquiries, Admin, and show Admin only to authenticated admins across desktop and mobile (including on Home).",
+      "id": "REQ-5",
+      "summary": "Update the /admin workflow so authentication, admin diagnostics, and admin grant/revoke actions work end-to-end and the UI refreshes automatically after mutations.",
       "acceptanceCriteria": [
-        "When logged in as a non-admin, the navbar shows Home, Properties, Inquiries, and does not show Admin.",
-        "When logged in as an admin, the navbar shows Home, Properties, Inquiries, Admin (Admin appears after Inquiries).",
-        "This ordering is consistent in both desktop and mobile header navigation.",
-        "The Inquiries link is present on the Home page as well (so the Admin link can consistently appear after it)."
+        "`/admin` shows a login prompt when not authenticated, and shows the authenticated principal once logged in.",
+        "When logged in as an admin, the Admin Management panel can successfully grant/revoke admins and shows success/error states in English.",
+        "After a successful grant/revoke, the page reflects the updated admin status/diagnostics via React Query invalidation/refetch (no manual hard refresh required).",
+        "No changes are made to files listed as immutable by the platform (e.g., `frontend/src/hooks/useInternetIdentity.ts(x)`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, `frontend/src/components/ui/*`)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/layout/Header.tsx",
+          "path": "frontend/src/hooks/useAdminManagement.ts",
           "operation": "modify",
-          "description": "Update desktop and mobile nav rendering so Inquiries is always present (including on '/'), enforce consistent link order (Home, Properties, Inquiries, then conditional Admin), and keep Admin hidden unless the authenticated user is an admin. Verify the component's usage instructions before implementing (authorization: role-based access control drives the admin visibility via the admin-check hook)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Make frontend admin-status detection reliably resolve to a boolean for authenticated users by calling the backend admin-check function consistently (with safe fallback between isCallerAdmin() and checkIfCallerIsAdmin()).",
-      "acceptanceCriteria": [
-        "For an authenticated admin principal, the admin-status query resolves to true and the Admin navbar link becomes visible without manual page code changes.",
-        "For an authenticated non-admin principal, the admin-status query resolves to false and the Admin navbar link remains hidden.",
-        "No runtime errors occur from missing backend methods during admin-status checks (e.g., in the navbar and in admin diagnostics)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Harden useIsCallerAdmin() to always return a boolean for authenticated users by attempting actor.isCallerAdmin() first and gracefully falling back to actor.checkIfCallerIsAdmin() if needed; also ensure missing-method cases do not throw runtime errors and unauthorized-style errors resolve to false. Verify the component's usage instructions before implementing (authorization: role-based access control admin check)."
+          "description": "Make admin grant/revoke mutations robust against backend method differences by preferring admin-management methods (e.g., grant/revoke) when available and falling back to role-assignment when needed; keep all user-facing errors in clear English; ensure React Query invalidation targets the active keys used by `useIsCallerAdmin` and `useAdminDiagnostics` so /admin updates without refresh."
         },
         {
-          "path": "frontend/src/hooks/useAdminDiagnostics.ts",
+          "path": "frontend/src/components/admin/AdminManagementPanel.tsx",
           "operation": "modify",
-          "description": "Align diagnostics admin-status fetch with the same robust admin-check logic used by the navbar (prefer isCallerAdmin(), fallback to checkIfCallerIsAdmin()), ensuring the hook never breaks due to a missing backend method and always produces a boolean admin status when authenticated. Verify the component's usage instructions before implementing (authorization: role-based access control admin check)."
+          "description": "Improve end-to-end UX for admin management by resetting stale mutation success/error banners when inputs change and after subsequent submissions, while continuing to use the existing shadcn-ui components (Card, Alert, Button, Input) for consistent UI. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/AdminPage.tsx",
+          "operation": "modify",
+          "description": "Ensure the /admin page reliably displays the authenticated principal (via existing principal card) after login, and that admin diagnostics and admin status visibly refresh after grant/revoke by relying on query invalidation/refetch rather than manual page reload; keep all UI text in English and avoid changes to immutable auth/actor hooks."
         }
       ]
     }

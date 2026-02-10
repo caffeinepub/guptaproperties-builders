@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGrantAdmin, useRevokeAdmin } from '../../hooks/useAdminManagement';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
@@ -13,6 +13,19 @@ export default function AdminManagementPanel() {
 
   const grantMutation = useGrantAdmin();
   const revokeMutation = useRevokeAdmin();
+
+  // Reset success/error states when input changes
+  useEffect(() => {
+    if (grantMutation.isSuccess || grantMutation.isError) {
+      grantMutation.reset();
+    }
+  }, [grantPrincipal]);
+
+  useEffect(() => {
+    if (revokeMutation.isSuccess || revokeMutation.isError) {
+      revokeMutation.reset();
+    }
+  }, [revokePrincipal]);
 
   const handleGrant = (e: React.FormEvent) => {
     e.preventDefault();
