@@ -5,6 +5,7 @@ import { useInternetIdentity } from './useInternetIdentity';
 export interface AdminDiagnostics {
   backendCallerPrincipal: string;
   backendAdminList: string[];
+  backendAdminListStatus: 'loaded' | 'empty' | 'unauthorized' | 'unavailable';
   backendReportsIsAdmin: boolean;
   // Frontend-side environment context
   currentOrigin: string;
@@ -30,16 +31,14 @@ export function useAdminDiagnostics() {
       if (!actor) throw new Error('Actor not available');
       
       try {
-        // Fetch caller principal
-        const callerPrincipal = await actor.getCallerPrincipalAsText();
+        // Use frontend identity for caller principal since backend doesn't expose it
+        const callerPrincipal = identity?.getPrincipal().toString() || 'anonymous';
         
-        // Fetch admin status with fallback logic
+        // Fetch admin status
         let isAdmin = false;
         try {
           if (typeof actor.isCallerAdmin === 'function') {
             isAdmin = await actor.isCallerAdmin();
-          } else if (typeof actor.checkIfCallerIsAdmin === 'function') {
-            isAdmin = await actor.checkIfCallerIsAdmin();
           }
         } catch (error: any) {
           // If unauthorized or anonymous, treat as not admin
@@ -50,22 +49,26 @@ export function useAdminDiagnostics() {
           }
         }
 
-        // Fetch admin list with isolated error handling
+        // Fetch admin list from backend
         let adminList: string[] = [];
+        let adminListStatus: 'loaded' | 'empty' | 'unauthorized' | 'unavailable' = 'unavailable';
+        
         try {
           if (typeof actor.getAdminsList === 'function') {
-            adminList = await actor.getAdminsList();
+            const list = await actor.getAdminsList();
+            adminList = list || [];
+            adminListStatus = adminList.length > 0 ? 'loaded' : 'empty';
+          } else {
+            adminListStatus = 'unavailable';
           }
         } catch (error: any) {
-          // If unauthorized or anonymous, silently fail and return empty list
-          // This allows the rest of the diagnostics to still be displayed
-          if (error.message?.includes('Unauthorized') || error.message?.includes('Anonymous') || error.message?.includes('Admin access required')) {
-            console.log('Admin list not available (requires admin access)');
-            adminList = [];
+          // Handle unauthorized access gracefully
+          if (error.message?.includes('Unauthorized') || error.message?.includes('Admin access required')) {
+            adminListStatus = 'unauthorized';
           } else {
-            // For other errors, log but don't fail the entire query
+            // Log but don't throw - allow diagnostics to render with other info
             console.warn('Failed to fetch admin list:', error);
-            adminList = [];
+            adminListStatus = 'unavailable';
           }
         }
 
@@ -90,6 +93,7 @@ export function useAdminDiagnostics() {
         return {
           backendCallerPrincipal: callerPrincipal,
           backendAdminList: adminList,
+          backendAdminListStatus: adminListStatus,
           backendReportsIsAdmin: isAdmin,
           currentOrigin: origin,
           currentHost: host,

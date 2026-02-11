@@ -7,7 +7,11 @@ import { Label } from '../ui/label';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Loader2, UserPlus, UserMinus, AlertCircle, CheckCircle2, Info } from 'lucide-react';
 
-export default function AdminManagementPanel() {
+interface AdminManagementPanelProps {
+  onAdminChange?: () => void;
+}
+
+export default function AdminManagementPanel({ onAdminChange }: AdminManagementPanelProps) {
   const [grantPrincipal, setGrantPrincipal] = useState('');
   const [revokePrincipal, setRevokePrincipal] = useState('');
 
@@ -34,6 +38,8 @@ export default function AdminManagementPanel() {
     grantMutation.mutate(grantPrincipal.trim(), {
       onSuccess: () => {
         setGrantPrincipal('');
+        // Notify parent to refresh admin status and diagnostics
+        onAdminChange?.();
       },
     });
   };
@@ -45,6 +51,8 @@ export default function AdminManagementPanel() {
     revokeMutation.mutate(revokePrincipal.trim(), {
       onSuccess: () => {
         setRevokePrincipal('');
+        // Notify parent to refresh admin status and diagnostics
+        onAdminChange?.();
       },
     });
   };

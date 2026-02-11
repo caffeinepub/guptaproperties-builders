@@ -1,13 +1,14 @@
 import Nat "mo:core/Nat";
 import Map "mo:core/Map";
 import Runtime "mo:core/Runtime";
-import Iter "mo:core/Iter";
 import Text "mo:core/Text";
+import Set "mo:core/Set";
 import Principal "mo:core/Principal";
+import Iter "mo:core/Iter";
+import Storage "blob-storage/Storage";
 import AccessControl "authorization/access-control";
 import MixinAuthorization "authorization/MixinAuthorization";
 import MixinStorage "blob-storage/Mixin";
-import Storage "blob-storage/Storage";
 
 actor {
   public type UserRole = {
@@ -44,13 +45,38 @@ actor {
   let propertiesState = Map.empty<Nat, Property>();
   var nextPropertyId = 0;
 
+  let persistentAdmins = Set.empty<Principal>();
   let accessControlState = AccessControl.initState();
+
   include MixinAuthorization(accessControlState);
   include MixinStorage();
 
-  // ------------------------------------------
+  public shared ({ caller }) func grantAdmin(user : Principal) : async () {
+    if (not persistentAdmins.contains(caller)) {
+      Runtime.trap("Unauthorized: Admin access required");
+    };
+    persistentAdmins.add(user);
+    AccessControl.assignRole(accessControlState, caller, user, #admin);
+  };
+
+  public shared ({ caller }) func revokeAdmin(user : Principal) : async () {
+    if (not persistentAdmins.contains(caller)) {
+      Runtime.trap("Unauthorized: Admin access required");
+    };
+    persistentAdmins.remove(user);
+    AccessControl.assignRole(accessControlState, caller, user, #user);
+  };
+
+  public query ({ caller }) func getAdminsList() : async [Text] {
+    if (not persistentAdmins.contains(caller)) {
+      Runtime.trap("Unauthorized: Admin access required");
+    };
+    persistentAdmins.toArray().map(
+      func(p : Principal) : Text { p.toText() }
+    );
+  };
+
   // User Profile Management
-  // ------------------------------------------
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can view profiles");
@@ -59,7 +85,7 @@ actor {
   };
 
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
-    if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
+    if (caller != user and not persistentAdmins.contains(caller)) {
       Runtime.trap("Unauthorized: Can only view your own profile");
     };
     userProfiles.get(user);
@@ -72,26 +98,7 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // ------------------------------------------
-  // Admin Management
-  // ------------------------------------------
-  public shared ({ caller }) func grantAdmin(user : Principal) : async () {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Admin access required");
-    };
-    AccessControl.assignRole(accessControlState, caller, user, #admin);
-  };
-
-  public shared ({ caller }) func revokeAdmin(user : Principal) : async () {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Admin access required");
-    };
-    AccessControl.assignRole(accessControlState, caller, user, #user);
-  };
-
-  // ------------------------------------------
   // Property CRUD Operations
-  // ------------------------------------------
   public query ({ caller }) func listProperties() : async [Property] {
     // Public endpoint - no authorization required
     propertiesState.values().toArray();
@@ -103,7 +110,7 @@ actor {
   };
 
   public shared ({ caller }) func createProperty(input : PropertyInput) : async Property {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
+    if (not persistentAdmins.contains(caller)) {
       Runtime.trap("Unauthorized: Admin access required");
     };
 
@@ -126,7 +133,7 @@ actor {
     id : Nat,
     input : PropertyInput,
   ) : async Property {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
+    if (not persistentAdmins.contains(caller)) {
       Runtime.trap("Unauthorized: Admin access required");
     };
 
@@ -151,7 +158,7 @@ actor {
   };
 
   public shared ({ caller }) func deleteProperty(id : Nat) : async () {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
+    if (not persistentAdmins.contains(caller)) {
       Runtime.trap("Unauthorized: Admin access required");
     };
 
@@ -163,29 +170,5 @@ actor {
         propertiesState.remove(id);
       };
     };
-  };
-
-  // ------------------------------------------
-  // Diagnostic Endpoints
-  // ------------------------------------------
-  public query ({ caller }) func getCallerPrincipalAsText() : async Text {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can use this endpoint");
-    };
-    caller.toText();
-  };
-
-  public query ({ caller }) func checkIfCallerIsAdmin() : async Bool {
-    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can use this endpoint");
-    };
-    AccessControl.isAdmin(accessControlState, caller);
-  };
-
-  public query ({ caller }) func getAdminsList() : async [Text] {
-    if (not AccessControl.isAdmin(accessControlState, caller)) {
-      Runtime.trap("Unauthorized: Admin access required");
-    };
-    [];
   };
 };

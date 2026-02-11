@@ -1,26 +1,56 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T16:34:48.625Z",
+  "generatedAt": "2026-02-11T09:26:31.111Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
+    "total": 5,
     "implemented": 1,
     "items": [
       {
-        "id": "REQ-7",
-        "summary": "Retry deploying the current application build (frontend + backend) without introducing any new feature changes, and confirm the deployment completes successfully.",
+        "id": "REQ-1",
+        "summary": "Add the principal ID `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` to the backend’s admin principal list in an additive way (do not remove or replace any existing admins).",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Implement a backend query method `isCallerAdmin() : async Bool` that returns whether the caller’s principal is in the persistent admin principal list.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Persist the backend admin principal list across canister upgrades so redeploying/upgrading does not reset or lose the admin list.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Ensure backend admin management operations are fully wired to the persistent admin principal list: `grantAdmin(Principal)` adds the target principal as an admin; `revokeAdmin(Principal)` removes the target principal as an admin; `getAdminsList() : async [Text]` returns the current admin principal IDs and is restricted to admin callers.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Keep the existing frontend Admin page flow working end-to-end with Internet Identity: a logged-in admin can access the Admin Panel, see an admin-active state, and use the Admin Management panel to grant/revoke admins successfully against the backend admin list.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/DEPLOYMENT_RETRY.md",
-          "frontend/src/hooks/useActor.ts",
-          "frontend/src/main.tsx"
+          "frontend/src/components/admin/AdminManagementPanel.tsx",
+          "frontend/src/pages/AdminPage.tsx",
+          "frontend/src/hooks/useAdminManagement.ts"
         ],
         "matchedFiles": [
-          "frontend/DEPLOYMENT_RETRY.md"
+          "frontend/src/components/admin/AdminManagementPanel.tsx",
+          "frontend/src/pages/AdminPage.tsx",
+          "frontend/src/hooks/useAdminManagement.ts"
         ]
       }
     ]
@@ -31,7 +61,9 @@
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/DEPLOYMENT_RETRY.md",
+    "frontend/src/components/admin/AdminManagementPanel.tsx",
+    "frontend/src/hooks/useAdminManagement.ts",
+    "frontend/src/pages/AdminPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

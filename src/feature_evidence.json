@@ -2,10 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-retry-deploying-the-current-application-build-frontend-backend-without-introducing-any-new-feature-changes-and-confirm-the-deployment-completes-successfully",
-      "featureTitle": "Retry deploying the current application build (frontend + backend) without introducing any new feature changes, and confirm the deployment completes successfully.",
+      "featureId": "feature-keep-the-existing-frontend-admin-page-flow-working-end-to-end-with-internet-identity-a-logged-in-admin-can-access-the-admin-panel-see-an-admin-active-state-and-use-the-admin-management-panel-to-grant-revoke-admins-successfully-against-the-backend-admin-list",
+      "featureTitle": "Keep the existing frontend Admin page flow working end-to-end with Internet Identity: a logged-in admin can access the Admin Panel, see an admin-active state, and use the Admin Management panel to grant/revoke admins successfully against the backend admin list.",
       "files": [
-        "frontend/DEPLOYMENT_RETRY.md"
+        "frontend/src/components/admin/AdminManagementPanel.tsx",
+        "frontend/src/hooks/useAdminManagement.ts",
+        "frontend/src/pages/AdminPage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -17,7 +19,7 @@
         "blob-storage@4.0.0"
       ],
       "testIds": [
-        "REQ-7"
+        "REQ-5"
       ],
       "confidence": "high"
     }

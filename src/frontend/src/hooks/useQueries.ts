@@ -15,17 +15,12 @@ export function useIsCallerAdmin() {
     queryFn: async () => {
       if (!actor) throw new Error('Actor not available');
       try {
-        // Try the primary method first
+        // Use the isCallerAdmin method from the backend
         if (typeof actor.isCallerAdmin === 'function') {
           const result = await actor.isCallerAdmin();
           return result;
         }
-        // Fallback to alternative method if primary doesn't exist
-        if (typeof actor.checkIfCallerIsAdmin === 'function') {
-          const result = await actor.checkIfCallerIsAdmin();
-          return result;
-        }
-        // If neither method exists, return false
+        // If method doesn't exist, return false
         console.warn('No admin check method available on actor');
         return false;
       } catch (error: any) {

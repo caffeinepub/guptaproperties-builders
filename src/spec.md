@@ -1,11 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Retry deploying the current application build (frontend + backend) with no feature changes and confirm the deployment succeeds.
+**Goal:** Bootstrap and persist a backend admin principal list, expose admin-check/admin-management methods, and keep the existing Admin UI working end-to-end with Internet Identity.
 
 **Planned changes:**
-- Re-run deployment for the current app revision (same code as the last attempted deploy).
-- Validate the deployed frontend loads and can reach the backend canister without runtime errors.
-- If the deployment fails again, capture and surface full build and deploy logs.
+- Add the principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` to the backend admin list in an additive way (preserve any existing admins).
+- Persist the admin principal list across canister upgrades so admin membership is not reset on redeploy/upgrade.
+- Implement `isCallerAdmin() : async Bool` to return whether the caller is in the persistent admin list.
+- Wire `grantAdmin(Principal)`, `revokeAdmin(Principal)`, and `getAdminsList() : async [Text]` to the persistent admin list, restricting `getAdminsList()` to admin callers with a clear unauthorized trap message.
+- Ensure the existing frontend Admin page continues to work: authenticated admins can access the Admin Panel, see admin-active state, grant/revoke admins successfully, and have diagnostics/status refresh after changes without a full reload.
 
-**User-visible outcome:** The application deploys successfully and the live frontend loads and communicates with the backend without errors (or, if it fails, complete logs are available for follow-up).
+**User-visible outcome:** An Internet Identity–authenticated admin can use the Admin page to confirm admin status and grant/revoke admin access (with results reflected immediately), and admin access persists through backend upgrades.

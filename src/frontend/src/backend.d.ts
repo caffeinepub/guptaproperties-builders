@@ -41,11 +41,9 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    checkIfCallerIsAdmin(): Promise<boolean>;
     createProperty(input: PropertyInput): Promise<Property>;
     deleteProperty(id: bigint): Promise<void>;
     getAdminsList(): Promise<Array<string>>;
-    getCallerPrincipalAsText(): Promise<string>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getProperty(_id: bigint): Promise<Property | null>;

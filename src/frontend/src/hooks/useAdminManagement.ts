@@ -32,10 +32,13 @@ export function useGrantAdmin() {
         throw new Error('Failed to grant admin access. Please try again.');
       }
     },
-    onSuccess: () => {
-      // Invalidate all admin-related queries to refresh UI state
-      queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
-      queryClient.invalidateQueries({ queryKey: ['adminDiagnostics'] });
+    onSuccess: async () => {
+      // Invalidate and refetch all admin-related queries to ensure UI reflects backend state
+      await queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
+      await queryClient.invalidateQueries({ queryKey: ['adminDiagnostics'] });
+      // Force refetch to ensure immediate update
+      await queryClient.refetchQueries({ queryKey: ['isCallerAdmin'] });
+      await queryClient.refetchQueries({ queryKey: ['adminDiagnostics'] });
     },
   });
 }
@@ -73,10 +76,13 @@ export function useRevokeAdmin() {
         throw new Error('Failed to revoke admin access. Please try again.');
       }
     },
-    onSuccess: () => {
-      // Invalidate all admin-related queries to refresh UI state
-      queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
-      queryClient.invalidateQueries({ queryKey: ['adminDiagnostics'] });
+    onSuccess: async () => {
+      // Invalidate and refetch all admin-related queries to ensure UI reflects backend state
+      await queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
+      await queryClient.invalidateQueries({ queryKey: ['adminDiagnostics'] });
+      // Force refetch to ensure immediate update
+      await queryClient.refetchQueries({ queryKey: ['isCallerAdmin'] });
+      await queryClient.refetchQueries({ queryKey: ['adminDiagnostics'] });
     },
   });
 }

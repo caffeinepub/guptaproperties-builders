@@ -42,6 +42,13 @@ export default function AdminPage() {
     refetch();
   };
 
+  // Callback for AdminManagementPanel to trigger refresh after grant/revoke
+  const handleAdminChange = () => {
+    // Refresh admin status and diagnostics after successful grant/revoke
+    refetchAdmin();
+    refetchDiagnostics();
+  };
+
   // Not authenticated - show login prompt
   if (!isAuthenticated) {
     return (
@@ -142,62 +149,56 @@ export default function AdminPage() {
                     <p className="text-sm font-medium text-muted-foreground">Backend Reports Admin Status:</p>
                     <p className="font-mono text-sm">{diagnostics.backendReportsIsAdmin ? 'true' : 'false'}</p>
                   </div>
-                  {diagnostics.backendAdminList.length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Backend Admin List:</p>
+                  
+                  {/* Backend Admin List - Always show with appropriate message */}
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Backend Admin List:</p>
+                    {diagnostics.backendAdminListStatus === 'loaded' && (
                       <ul className="mt-1 space-y-1">
                         {diagnostics.backendAdminList.map((admin, idx) => (
                           <li key={idx} className="font-mono text-sm break-all">{admin}</li>
                         ))}
                       </ul>
-                    </div>
-                  )}
+                    )}
+                    {diagnostics.backendAdminListStatus === 'empty' && (
+                      <p className="mt-1 text-sm text-muted-foreground italic">
+                        No admins were returned by the backend.
+                      </p>
+                    )}
+                    {diagnostics.backendAdminListStatus === 'unauthorized' && (
+                      <p className="mt-1 text-sm text-muted-foreground italic">
+                        Access to admin list requires admin privileges.
+                      </p>
+                    )}
+                    {diagnostics.backendAdminListStatus === 'unavailable' && (
+                      <p className="mt-1 text-sm text-muted-foreground italic">
+                        Admin list is not available from the backend.
+                      </p>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}
             
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Error Checking Admin Status</AlertTitle>
-              <AlertDescription className="mt-2 space-y-2">
-                <p>
-                  We couldn't verify your admin status. This may happen if:
-                </p>
-                <ul className="list-disc list-inside space-y-1 text-sm">
-                  <li>The canister is still initializing after deployment</li>
-                  <li>There's a temporary connection issue</li>
-                  <li>The backend needs to be redeployed</li>
-                </ul>
-                <p className="text-xs font-mono mt-3 p-2 bg-muted rounded">
-                  {errorMessage}
-                </p>
+              <AlertTitle>Admin Check Failed</AlertTitle>
+              <AlertDescription>
+                {errorMessage}
               </AlertDescription>
             </Alert>
 
-            <div className="flex gap-3">
-              <Button
-                onClick={handleRefreshAll}
-                variant="default"
-                disabled={diagnosticsLoading}
-              >
-                <RefreshCw className={`mr-2 h-4 w-4 ${diagnosticsLoading ? 'animate-spin' : ''}`} />
-                Refresh Diagnostics
-              </Button>
-              <Button
-                onClick={() => window.location.reload()}
-                variant="outline"
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Refresh Page
-              </Button>
-            </div>
+            <Button onClick={handleRefreshAll} variant="outline">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Retry Admin Check
+            </Button>
           </div>
         </div>
       </div>
     );
   }
 
-  // Authenticated but not admin - show access denied with diagnostics
+  // Authenticated but not admin - show access denied
   if (!adminLoading && !isAdmin) {
     return (
       <div className="min-h-screen bg-muted/20 py-12">
@@ -205,7 +206,7 @@ export default function AdminPage() {
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-foreground md:text-4xl">Admin Panel</h1>
             <p className="mt-2 text-muted-foreground">
-              Administrative access required
+              Access restricted to administrators
             </p>
           </div>
 
@@ -251,56 +252,73 @@ export default function AdminPage() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Your Internet Identity Principal:</p>
+                    <p className="text-sm font-medium text-muted-foreground">Internet Identity Principal:</p>
                     <p className="font-mono text-sm break-all">{identity?.getPrincipal().toString()}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Backend Sees Your Principal As:</p>
+                    <p className="text-sm font-medium text-muted-foreground">Backend Caller Principal:</p>
                     <p className="font-mono text-sm break-all">{diagnostics.backendCallerPrincipal}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Backend Admin Check Result:</p>
-                    <p className="font-mono text-sm">{diagnostics.backendReportsIsAdmin ? 'Admin ✓' : 'Not Admin ✗'}</p>
+                    <p className="text-sm font-medium text-muted-foreground">Backend Reports Admin Status:</p>
+                    <p className="font-mono text-sm">{diagnostics.backendReportsIsAdmin ? 'true' : 'false'}</p>
                   </div>
-                  {diagnostics.backendAdminList.length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Current Admin Principals in Backend:</p>
+                  
+                  {/* Backend Admin List - Always show with appropriate message */}
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Backend Admin List:</p>
+                    {diagnostics.backendAdminListStatus === 'loaded' && (
                       <ul className="mt-1 space-y-1">
                         {diagnostics.backendAdminList.map((admin, idx) => (
                           <li key={idx} className="font-mono text-sm break-all">{admin}</li>
                         ))}
                       </ul>
-                    </div>
-                  )}
+                    )}
+                    {diagnostics.backendAdminListStatus === 'empty' && (
+                      <p className="mt-1 text-sm text-muted-foreground italic">
+                        No admins were returned by the backend.
+                      </p>
+                    )}
+                    {diagnostics.backendAdminListStatus === 'unauthorized' && (
+                      <p className="mt-1 text-sm text-muted-foreground italic">
+                        Access to admin list requires admin privileges.
+                      </p>
+                    )}
+                    {diagnostics.backendAdminListStatus === 'unavailable' && (
+                      <p className="mt-1 text-sm text-muted-foreground italic">
+                        Admin list is not available from the backend.
+                      </p>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}
-            
+
             <Alert>
-              <Lock className="h-4 w-4" />
-              <AlertTitle>Access Denied</AlertTitle>
-              <AlertDescription className="mt-2 space-y-2">
-                <p>
-                  You don't have admin privileges. To request access, share your Principal ID (shown above) with an existing admin.
-                </p>
+              <ShieldCheck className="h-4 w-4" />
+              <AlertTitle>Admin Access Required</AlertTitle>
+              <AlertDescription>
+                You need admin privileges to access this panel. Share your Principal ID with an existing admin to request access.
               </AlertDescription>
             </Alert>
-
-            <Button
-              onClick={handleRefreshAll}
-              variant="outline"
-              disabled={diagnosticsLoading}
-            >
-              <RefreshCw className={`mr-2 h-4 w-4 ${diagnosticsLoading ? 'animate-spin' : ''}`} />
-              Refresh Status
-            </Button>
           </div>
         </div>
       </div>
     );
   }
 
-  // Admin user - show full admin panel
+  // Loading state
+  if (adminLoading || diagnosticsLoading) {
+    return (
+      <div className="container mx-auto px-4 py-16">
+        <div className="flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
+
+  // Admin authenticated - show full admin panel
   return (
     <div className="min-h-screen bg-muted/20 py-12">
       <div className="container mx-auto px-4">
@@ -311,30 +329,21 @@ export default function AdminPage() {
               Manage properties, inquiries, and admin access
             </p>
           </div>
-          <Button
-            onClick={handleRefreshAll}
-            variant="outline"
-            size="sm"
-            disabled={diagnosticsLoading}
-          >
-            <RefreshCw className={`mr-2 h-4 w-4 ${diagnosticsLoading ? 'animate-spin' : ''}`} />
-            Refresh
+          <Button onClick={handleRefreshAll} variant="outline" size="sm">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Refresh All
           </Button>
         </div>
 
         <div className="space-y-8">
-          {/* Admin Status Card */}
-          <Card className="border-green-500 bg-green-50 dark:bg-green-950">
-            <CardContent className="flex items-center gap-3 py-4">
-              <ShieldCheck className="h-5 w-5 text-green-700 dark:text-green-300" />
-              <div>
-                <p className="font-medium text-green-900 dark:text-green-100">Admin Access Active</p>
-                <p className="text-sm text-green-700 dark:text-green-300">
-                  You have full administrative privileges
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Admin Access Active Alert */}
+          <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
+            <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <AlertTitle className="text-green-900 dark:text-green-100">Admin Access Active</AlertTitle>
+            <AlertDescription className="text-green-800 dark:text-green-200">
+              You have full administrative privileges
+            </AlertDescription>
+          </Alert>
 
           {/* Deployment Environment Card */}
           {diagnostics && (
@@ -364,7 +373,6 @@ export default function AdminPage() {
             </Card>
           )}
 
-          {/* Principal ID Card */}
           <MyPrincipalCard />
 
           {/* Admin Diagnostics Section */}
@@ -378,41 +386,58 @@ export default function AdminPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Your Internet Identity Principal:</p>
+                  <p className="text-sm font-medium text-muted-foreground">Internet Identity Principal:</p>
                   <p className="font-mono text-sm break-all">{identity?.getPrincipal().toString()}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Backend Sees Your Principal As:</p>
+                  <p className="text-sm font-medium text-muted-foreground">Backend Caller Principal:</p>
                   <p className="font-mono text-sm break-all">{diagnostics.backendCallerPrincipal}</p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Backend Admin Check Result:</p>
-                  <p className="font-mono text-sm">{diagnostics.backendReportsIsAdmin ? 'Admin ✓' : 'Not Admin ✗'}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Backend Reports Admin Status:</p>
+                  <p className="font-mono text-sm">{diagnostics.backendReportsIsAdmin ? 'true' : 'false'}</p>
                 </div>
-                {diagnostics.backendAdminList.length > 0 && (
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Current Admin Principals in Backend:</p>
+                
+                {/* Backend Admin List - Always show with appropriate message */}
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Backend Admin List:</p>
+                  {diagnostics.backendAdminListStatus === 'loaded' && (
                     <ul className="mt-1 space-y-1">
                       {diagnostics.backendAdminList.map((admin, idx) => (
                         <li key={idx} className="font-mono text-sm break-all">{admin}</li>
                       ))}
                     </ul>
-                  </div>
-                )}
+                  )}
+                  {diagnostics.backendAdminListStatus === 'empty' && (
+                    <p className="mt-1 text-sm text-muted-foreground italic">
+                      No admins were returned by the backend.
+                    </p>
+                  )}
+                  {diagnostics.backendAdminListStatus === 'unauthorized' && (
+                    <p className="mt-1 text-sm text-muted-foreground italic">
+                      Access to admin list requires admin privileges.
+                    </p>
+                  )}
+                  {diagnostics.backendAdminListStatus === 'unavailable' && (
+                    <p className="mt-1 text-sm text-muted-foreground italic">
+                      Admin list is not available from the backend.
+                    </p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}
 
           <Separator />
 
-          {/* Admin Management Panel */}
-          <AdminManagementPanel />
+          {/* Admin Management Panel with refresh callback */}
+          <AdminManagementPanel onAdminChange={handleAdminChange} />
 
           <Separator />
 
           {/* Inquiries Section */}
           <div>
-            <h2 className="mb-4 text-2xl font-semibold">Customer Inquiries</h2>
+            <h2 className="mb-4 text-2xl font-semibold">Inquiries</h2>
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />

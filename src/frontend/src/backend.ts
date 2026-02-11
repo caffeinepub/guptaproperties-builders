@@ -134,11 +134,9 @@ export interface backendInterface {
     _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    checkIfCallerIsAdmin(): Promise<boolean>;
     createProperty(input: PropertyInput): Promise<Property>;
     deleteProperty(id: bigint): Promise<void>;
     getAdminsList(): Promise<Array<string>>;
-    getCallerPrincipalAsText(): Promise<string>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getProperty(_id: bigint): Promise<Property | null>;
@@ -265,20 +263,6 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async checkIfCallerIsAdmin(): Promise<boolean> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.checkIfCallerIsAdmin();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.checkIfCallerIsAdmin();
-            return result;
-        }
-    }
     async createProperty(arg0: PropertyInput): Promise<Property> {
         if (this.processError) {
             try {
@@ -318,20 +302,6 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.getAdminsList();
-            return result;
-        }
-    }
-    async getCallerPrincipalAsText(): Promise<string> {
-        if (this.processError) {
-            try {
-                const result = await this.actor.getCallerPrincipalAsText();
-                return result;
-            } catch (e) {
-                this.processError(e);
-                throw new Error("unreachable");
-            }
-        } else {
-            const result = await this.actor.getCallerPrincipalAsText();
             return result;
         }
     }
