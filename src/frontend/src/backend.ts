@@ -142,6 +142,7 @@ export interface backendInterface {
     getProperty(_id: bigint): Promise<Property | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     grantAdmin(user: Principal): Promise<void>;
+    initializePersistentAdmin(admin: Principal): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     listProperties(): Promise<Array<Property>>;
     revokeAdmin(user: Principal): Promise<void>;
@@ -372,6 +373,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.grantAdmin(arg0);
+            return result;
+        }
+    }
+    async initializePersistentAdmin(arg0: Principal): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.initializePersistentAdmin(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.initializePersistentAdmin(arg0);
             return result;
         }
     }

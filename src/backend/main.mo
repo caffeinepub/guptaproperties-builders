@@ -19,7 +19,6 @@ actor {
 
   public type UserProfile = {
     name : Text;
-    // Other user metadata if needed
   };
 
   public type Property = {
@@ -51,6 +50,12 @@ actor {
   include MixinAuthorization(accessControlState);
   include MixinStorage();
 
+  // Initialization to grant persistent admin rights
+  public shared ({ caller }) func initializePersistentAdmin(admin : Principal) : async () {
+    persistentAdmins.add(admin);
+    AccessControl.assignRole(accessControlState, caller, admin, #admin);
+  };
+
   public shared ({ caller }) func grantAdmin(user : Principal) : async () {
     if (not persistentAdmins.contains(caller)) {
       Runtime.trap("Unauthorized: Admin access required");
@@ -67,7 +72,7 @@ actor {
     AccessControl.assignRole(accessControlState, caller, user, #user);
   };
 
-  public query ({ caller }) func getAdminsList() : async [Text] {
+  public shared ({ caller }) func getAdminsList() : async [Text] {
     if (not persistentAdmins.contains(caller)) {
       Runtime.trap("Unauthorized: Admin access required");
     };

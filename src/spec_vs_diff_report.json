@@ -1,29 +1,13 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T09:26:31.109Z",
-  "summary": "Backend adds an in-memory `persistentAdmins` Set and wires `grantAdmin`, `revokeAdmin`, and `getAdminsList` to it with admin gating. Frontend adds/updates Admin management hooks and UI to call `grantAdmin`/`revokeAdmin` and refresh admin-related queries. However, the required bootstrap admin principal, the `isCallerAdmin()` backend method, and persistence across upgrades are not evidenced in the diff summary.",
+  "generatedAt": "2026-02-11T13:19:17.133Z",
+  "summary": "REQ-1 is not satisfied in the shown diff: the specified principal is not additively pre-added to the backend admin list, so it is not guaranteed to be authorized after deployment/upgrade. The diff also appears to introduce broader backend admin/auth/profile/property logic and frontend-related updates not requested by the BuildRequest (and the frontend changes conflict with the stated non-goal).",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Add the principal ID `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` to the backend’s admin principal list in an additive way (do not remove or replace any existing admins).",
-      "reason": "`persistentAdmins` is initialized as an empty set (`Set.empty<Principal>()`) and the diff snippet does not show adding/bootstrapping the specified principal into the set.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "requirement": "Implement a backend query method `isCallerAdmin() : async Bool` that returns whether the caller’s principal is in the persistent admin principal list.",
-      "reason": "No `isCallerAdmin` method is shown/mentioned in the backend diff snippet.",
-      "evidence": [
-        "backend/main.mo"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "requirement": "Persist the backend admin principal list across canister upgrades so redeploying/upgrading does not reset or lose the admin list.",
-      "reason": "The diff shows `let persistentAdmins = Set.empty<Principal>();` (non-stable) and does not show any `stable` storage or `preupgrade`/`postupgrade` logic to persist/restore the admin list across upgrades.",
+      "requirement": "Add the Principal ID `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` to the backend’s admin principal list in an additive way so that this principal is treated as an admin by backend admin checks (and appears in `getAdminsList()`).",
+      "reason": "In `backend/main.mo`, `persistentAdmins` is initialized as an empty set and there is no visible code that pre-populates it with the requested principal on install/upgrade. Admin rights appear to require either calling `initializePersistentAdmin` or already being in `persistentAdmins`, which does not guarantee the requested principal is an admin immediately after deployment/upgrade.",
       "evidence": [
         "backend/main.mo"
       ]
@@ -31,20 +15,31 @@
   ],
   "hallucinated_features": [
     {
-      "description": "Admin-gated property creation using the new `persistentAdmins` set (`createProperty` traps unless caller is in `persistentAdmins`).",
-      "reason": "The BuildRequest only asked to bootstrap/persist an admin list and wire admin management + UI; it did not request changing property CRUD authorization to depend on the admin list.",
+      "description": "Introduced/expanded a persistent admin management system (`persistentAdmins` set plus `initializePersistentAdmin`, `grantAdmin`, `revokeAdmin`, `getAdminsList`) rather than only add the provided principal ID to an existing admin list.",
+      "reason": "BuildRequest only asks to add one specific principal to the backend admin list additively; it does not request adding new admin initialization flows or redesigning admin management logic.",
       "evidence": [
         "backend/main.mo"
       ]
+    },
+    {
+      "description": "Added/expanded user profile and property CRUD authorization logic tied to `AccessControl` and `persistentAdmins`.",
+      "reason": "Not requested by REQ-1; the request is narrowly about adding a principal ID to an admin list so admin-gated methods authorize that principal.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "description": "Frontend-related changes/updates summarized across many frontend files (including admin visibility behavior).",
+      "reason": "Explicit non-goal: \"Do not redesign or change the frontend admin UI as part of this request.\" The diff indicates frontend modifications via `frontend-file-summaries.txt`.",
+      "evidence": [
+        "frontend-file-summaries.txt"
+      ]
     }
   ],
-  "confidence": 0.68,
+  "confidence": 0.72,
   "changed_files": [
     "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/components/admin/AdminManagementPanel.tsx",
-    "frontend/src/hooks/useAdminManagement.ts",
-    "frontend/src/pages/AdminPage.tsx",
     "project_state.json"
   ]
 }

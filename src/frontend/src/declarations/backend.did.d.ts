@@ -69,6 +69,7 @@ export interface _SERVICE {
   'getProperty' : ActorMethod<[bigint], [] | [Property]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'grantAdmin' : ActorMethod<[Principal], undefined>,
+  'initializePersistentAdmin' : ActorMethod<[Principal], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'listProperties' : ActorMethod<[], Array<Property>>,
   'revokeAdmin' : ActorMethod<[Principal], undefined>,

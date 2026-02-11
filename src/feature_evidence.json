@@ -1,27 +1,4 @@
 {
   "kind": "feature_evidence_report",
-  "features": [
-    {
-      "featureId": "feature-keep-the-existing-frontend-admin-page-flow-working-end-to-end-with-internet-identity-a-logged-in-admin-can-access-the-admin-panel-see-an-admin-active-state-and-use-the-admin-management-panel-to-grant-revoke-admins-successfully-against-the-backend-admin-list",
-      "featureTitle": "Keep the existing frontend Admin page flow working end-to-end with Internet Identity: a logged-in admin can access the Admin Panel, see an admin-active state, and use the Admin Management panel to grant/revoke admins successfully against the backend admin list.",
-      "files": [
-        "frontend/src/components/admin/AdminManagementPanel.tsx",
-        "frontend/src/hooks/useAdminManagement.ts",
-        "frontend/src/pages/AdminPage.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0",
-        "blob-storage@4.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    }
-  ]
+  "features": []
 }

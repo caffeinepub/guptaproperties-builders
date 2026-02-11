@@ -1,76 +1,30 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Implement an admin system: backend-maintained admin principal ID list with admin-status checks, plus a frontend admin-management UI. Add the provided principal ID to the admin list.",
+  "summary": "Project to implement a minimal backend admin system with an admin list, including adding a specified principal ID as an admin.",
   "architectural_notes": [
-    "Maintain a backend list of admin principal IDs and enforce admin checks for privileged actions.",
-    "Provide a frontend UI for managing the admin principal ID list."
+    "Backend maintains an admin allowlist (principal IDs) used for admin authorization checks."
   ],
   "known_issues": [],
   "isFixRequest": false,
-  "existing_features": [
-    {
-      "id": "feature-keep-the-existing-frontend-admin-page-flow-working-end-to-end-with-internet-identity-a-logged-in-admin-can-access-the-admin-panel-see-an-admin-active-state-and-use-the-admin-management-panel-to-grant-revoke-admins-successfully-against-the-backend-admin-list",
-      "title": "Keep the existing frontend Admin page flow working end-to-end with Internet Identity: a logged-in admin can access the Admin Panel, see an admin-active state, and use the Admin Management panel to grant/revoke admins successfully against the backend admin list.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    }
-  ],
+  "existing_features": [],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Create backend admin list to store admin principal IDs and support admin-status checking",
+      "summary": "Create a minimal backend admin system and add principal ID fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe to the backend admin list.",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Add frontend admin-management UI to view/manage admin principal IDs",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Add principal ID fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe to the backend admin list",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Add the principal ID `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` to the backend’s admin principal list in an additive way (do not remove or replace any existing admins).",
+      "summary": "Add the Principal ID `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` to the backend’s admin principal list in an additive way (do not remove or replace any existing admins), so that this principal is treated as an admin by backend admin checks.",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Implement a backend query method `isCallerAdmin() : async Bool` that returns whether the caller’s principal is in the persistent admin principal list.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Persist the backend admin principal list across canister upgrades so redeploying/upgrading does not reset or lose the admin list.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Ensure backend admin management operations are fully wired to the persistent admin principal list: `grantAdmin(Principal)` adds the target principal as an admin; `revokeAdmin(Principal)` removes the target principal as an admin; `getAdminsList() : async [Text]` returns the current admin principal IDs and is restricted to admin callers.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "status": "pending"
     }
   ],
-  "projectName": "Bootstrap and persist backend admin principal list + enable admin management UI",
+  "projectName": "Add provided Principal ID to backend admin list",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

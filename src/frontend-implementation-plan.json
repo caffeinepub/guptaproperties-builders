@@ -1,33 +1,6 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Admin UI: keep Internet Identity admin management working with live refresh",
-  "requirements": [
-    {
-      "id": "REQ-5",
-      "summary": "Ensure the existing Admin page flow continues to work end-to-end with Internet Identity, including admin-active state and successful grant/revoke with live refresh.",
-      "acceptanceCriteria": [
-        "On the Admin page, an authenticated admin user can grant admin access by entering a Principal ID and submitting; the UI shows a success state.",
-        "On the Admin page, an authenticated admin user can revoke admin access by entering a Principal ID and submitting; the UI shows a success state.",
-        "Admin status checks and admin diagnostics refresh after grant/revoke without requiring a full page reload."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/admin/AdminManagementPanel.tsx",
-          "operation": "modify",
-          "description": "Extend the Admin Management panel to trigger a parent-provided refresh callback after successful grant/revoke, ensuring the Admin page updates immediately. Continue composing existing shadcn-ui components (Card, Button, Input, Alert) for form + success/error states. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/pages/AdminPage.tsx",
-          "operation": "modify",
-          "description": "Wire AdminManagementPanel to the Admin page refresh flow by passing a callback that refreshes admin status and diagnostics after grant/revoke, keeping the admin-active state and diagnostics in sync without a full reload. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useAdminManagement.ts",
-          "operation": "modify",
-          "description": "Harden admin grant/revoke mutations to reliably refresh admin-related cached queries after success (invalidate and/or refetch relevant query keys used by useIsCallerAdmin/useAdminDiagnostics), so the UI reflects changes immediately. Verify the component's usage instructions before implementing."
-        }
-      ]
-    }
-  ]
+  "title": "Frontend-only plan: no changes required for backend-only admin principal update",
+  "requirements": []
 }

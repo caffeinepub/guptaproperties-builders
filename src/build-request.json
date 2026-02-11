@@ -1,110 +1,47 @@
 {
   "kind": "build_request",
-  "title": "Bootstrap and persist backend admin principal list + enable admin management UI",
+  "title": "Add provided Principal ID to backend admin list",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add the principal ID `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` to the backend’s admin principal list in an additive way (do not remove or replace any existing admins).",
+      "text": "Add the Principal ID `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` to the backend’s admin principal list in an additive way (do not remove or replace any existing admins), so that this principal is treated as an admin by backend admin checks.",
       "target": "backend",
       "source": {
         "messageIds": [
-          "msg-5",
-          "msg-9"
+          "msg-1"
         ],
         "quotes": [
-          "fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe gave this principal id admin add it to backend admin list",
-          "proceed"
+          "add this principal id in backend admin list fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe"
         ]
       },
       "acceptanceCriteria": [
-        "After deployment, `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` is recognized as an admin by the backend.",
-        "Existing admin principals (if any) remain admins and are not removed."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Implement a backend query method `isCallerAdmin() : async Bool` that returns whether the caller’s principal is in the persistent admin principal list.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-9"
-        ],
-        "quotes": [
-          "proceed"
-        ]
-      },
-      "acceptanceCriteria": [
-        "When called by an admin principal, `isCallerAdmin()` returns `true`.",
-        "When called by a non-admin principal, `isCallerAdmin()` returns `false` (and does not trap)."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Persist the backend admin principal list across canister upgrades so redeploying/upgrading does not reset or lose the admin list.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-9"
-        ],
-        "quotes": [
-          "proceed"
-        ]
-      },
-      "acceptanceCriteria": [
-        "After an upgrade, any principals previously granted admin remain admins.",
-        "The initial bootstrapped admin principal remains an admin after an upgrade."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Ensure backend admin management operations are fully wired to the persistent admin principal list: `grantAdmin(Principal)` adds the target principal as an admin; `revokeAdmin(Principal)` removes the target principal as an admin; `getAdminsList() : async [Text]` returns the current admin principal IDs and is restricted to admin callers.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-9"
-        ],
-        "quotes": [
-          "proceed"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Calling `grantAdmin` for a valid principal causes `isCallerAdmin()` for that principal to return `true` and `getAdminsList()` to include it.",
-        "Calling `revokeAdmin` for an admin principal causes `isCallerAdmin()` for that principal to return `false` and `getAdminsList()` to no longer include it.",
-        "`getAdminsList()` traps with a clear unauthorized message when called by a non-admin principal.",
-        "`getAdminsList()` returns principal IDs as text strings (e.g., `aaaaa-aa` format) for admin callers."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Keep the existing frontend Admin page flow working end-to-end with Internet Identity: a logged-in admin can access the Admin Panel, see an admin-active state, and use the Admin Management panel to grant/revoke admins successfully against the backend admin list.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-9"
-        ],
-        "quotes": [
-          "proceed"
-        ]
-      },
-      "acceptanceCriteria": [
-        "On the Admin page, an authenticated admin user can grant admin access by entering a Principal ID and submitting; the UI shows a success state.",
-        "On the Admin page, an authenticated admin user can revoke admin access by entering a Principal ID and submitting; the UI shows a success state.",
-        "Admin status checks and admin diagnostics refresh after grant/revoke without requiring a full page reload."
+        "After deployment/upgrade, backend admin-gated methods (e.g., `grantAdmin`, `revokeAdmin`, `getAdminsList`, `createProperty`) authorize calls made by principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe`.",
+        "Calling `getAdminsList()` as an admin returns an array that includes the text form of `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe`.",
+        "Any pre-existing admins (if present) remain admins after the change (no removals/replacements)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in `backend/main.mo` (no additional backend services).",
-    "Do not edit frontend files under `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, or anything in `frontend/src/components/ui`; compose those components instead."
+    "Backend must remain a single Motoko actor (all logic in `backend/main.mo`).",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Implementing third-party authentication providers (only Internet Identity is in scope).",
-    "Adding real-time features (websockets/chat/push).",
-    "Adding or restoring backend inquiry storage (frontend inquiries may remain stubbed)."
+    "Do not redesign or change the frontend admin UI as part of this request.",
+    "Do not introduce non-Internet Identity authentication or third-party auth providers."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

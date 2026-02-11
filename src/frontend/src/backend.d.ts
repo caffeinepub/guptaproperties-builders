@@ -49,6 +49,7 @@ export interface backendInterface {
     getProperty(_id: bigint): Promise<Property | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     grantAdmin(user: Principal): Promise<void>;
+    initializePersistentAdmin(admin: Principal): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     listProperties(): Promise<Array<Property>>;
     revokeAdmin(user: Principal): Promise<void>;
