@@ -1,10 +1,11 @@
 # Specification
 
 ## Summary
-**Goal:** Ensure the provided Principal ID is recognized as a backend admin without changing/removing existing admins.
+**Goal:** Improve deployment retry documentation and add a global UI indicator for the user’s current admin status.
 
 **Planned changes:**
-- Add principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` to the backend admin principal list in an additive way within `backend/main.mo`.
-- Ensure backend admin checks and `getAdminsList()` include/authorize this principal while preserving any pre-existing admins.
+- Complete `frontend/DEPLOYMENT_RETRY.md` with an end-to-end, copy/paste-ready procedure to clean install/build and redeploy canisters + frontend for both draft and live, plus a final verification checklist confirming the bootstrap admin principal is recognized as admin via the existing Admin Panel diagnostics UI.
+- Add an always-available admin-status indicator in a global UI location (e.g., header) that shows “Admin” vs “Not admin” for authenticated users, uses the existing `useIsCallerAdmin()` query, and includes a manual refresh control to re-check status without navigating to the Admin page.
+- Ensure the indicator behaves safely when unauthenticated (hidden or unauthenticated state) and all user-facing text remains in English.
 
-**User-visible outcome:** Calls to backend admin-gated methods succeed when made by principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe`, and `getAdminsList()` includes this principal.
+**User-visible outcome:** Users can follow a complete redeploy/retry guide for both draft and live with a clear admin verification step, and authenticated users can always see (and manually refresh) whether they are an admin from anywhere in the app.

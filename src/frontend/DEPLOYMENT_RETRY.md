@@ -1,14 +1,15 @@
 # Deployment Retry Guide
 
-This document outlines the steps to retry deployment for the current application revision without making code changes.
+This document provides a complete, copy/paste-ready procedure for redeploying the application to both draft and live environments without making code changes.
 
 ## Prerequisites
 
 - Ensure you have `dfx` CLI installed and configured
 - Ensure you have `pnpm` installed
 - Ensure you are in the project root directory
+- Ensure you have access to both draft and live canister IDs
 
-## Deployment Steps
+## Full Deployment Procedure
 
-### 1. Clean Build
+### Step 1: Clean Local State (Optional but Recommended)
 

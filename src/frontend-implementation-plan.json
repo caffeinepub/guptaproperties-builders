@@ -1,6 +1,46 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Frontend-only plan: no changes required for backend-only admin principal update",
-  "requirements": []
+  "title": "Deployment retry guide completion and global admin-status indicator",
+  "requirements": [
+    {
+      "id": "REQ-5",
+      "summary": "Complete DEPLOYMENT_RETRY.md with an end-to-end, copy/paste-ready redeploy procedure for both draft and live, including an admin verification checklist using the Admin Panel diagnostics and the bootstrap principal.",
+      "acceptanceCriteria": [
+        "`frontend/DEPLOYMENT_RETRY.md` is no longer truncated and includes concrete steps for: clean install/build, deploying canisters, deploying the frontend, and performing the same procedure for both draft and live environments.",
+        "The doc includes a verification section that instructs how to confirm admin access using the existing Admin Panel diagnostics UI and the bootstrap principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe`.",
+        "All user-facing text in the doc is in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/DEPLOYMENT_RETRY.md",
+          "operation": "modify",
+          "description": "Replace the truncated content with a complete English guide that is copy/paste-ready and covers: (1) clean local state (optional but explicit), (2) fresh dependency install, (3) full production build, (4) redeploying canisters, (5) redeploying the frontend assets, then repeating the exact sequence for BOTH draft and live. Add a final verification checklist that uses the existing Admin Panel diagnostics UI to confirm the bootstrap admin principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` is recognized as admin after each deployment."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add a global, always-available admin-status indicator in the header with a manual refresh control using the existing useIsCallerAdmin() query.",
+      "acceptanceCriteria": [
+        "When a user is authenticated, the app shows an admin-status indicator (e.g., \"Admin\" vs \"Not admin\") in a global location (such as the header) across pages.",
+        "The indicator uses the existing `useIsCallerAdmin()` query and includes a refresh action that triggers a refetch (or invalidation + refetch) and updates the display accordingly.",
+        "When the user is not authenticated, the indicator is hidden or shows an unauthenticated state without throwing errors.",
+        "All user-facing text is in English.",
+        "No edits are made to any frontend immutable paths listed in SYSTEM_CONTEXT."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/auth/AdminStatusIndicator.tsx",
+          "operation": "create",
+          "description": "Create a small header-friendly component that reads authentication state via `useInternetIdentity()` and admin status via the existing `useIsCallerAdmin()` hook, rendering a compact English label (e.g., \"Admin\" / \"Not admin\" / \"Checking...\") and a manual refresh control that calls the query's `refetch()` to re-check status without navigation. Use shadcn-ui primitives already present in the repo (e.g., the existing Button component) for consistent styling; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/layout/Header.tsx",
+          "operation": "modify",
+          "description": "Wire the new always-available admin-status indicator into the header so it appears across pages (SiteLayout header), and ensure it behaves safely when unauthenticated (hidden or unauthenticated state). Keep the existing Admin nav link logic intact and ensure the refresh action updates the displayed status. Verify the component's usage instructions before implementing."
+        }
+      ]
+    }
+  ]
 }

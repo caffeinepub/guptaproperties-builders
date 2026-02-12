@@ -50,14 +50,12 @@ actor {
   include MixinAuthorization(accessControlState);
   include MixinStorage();
 
-  // Initialization to grant persistent admin rights
-  public shared ({ caller }) func initializePersistentAdmin(admin : Principal) : async () {
-    persistentAdmins.add(admin);
-    AccessControl.assignRole(accessControlState, caller, admin, #admin);
+  func _isCallerAdmin(caller : Principal) : Bool {
+    persistentAdmins.contains(caller);
   };
 
   public shared ({ caller }) func grantAdmin(user : Principal) : async () {
-    if (not persistentAdmins.contains(caller)) {
+    if (not _isCallerAdmin(caller)) {
       Runtime.trap("Unauthorized: Admin access required");
     };
     persistentAdmins.add(user);
@@ -65,20 +63,11 @@ actor {
   };
 
   public shared ({ caller }) func revokeAdmin(user : Principal) : async () {
-    if (not persistentAdmins.contains(caller)) {
+    if (not _isCallerAdmin(caller)) {
       Runtime.trap("Unauthorized: Admin access required");
     };
     persistentAdmins.remove(user);
     AccessControl.assignRole(accessControlState, caller, user, #user);
-  };
-
-  public shared ({ caller }) func getAdminsList() : async [Text] {
-    if (not persistentAdmins.contains(caller)) {
-      Runtime.trap("Unauthorized: Admin access required");
-    };
-    persistentAdmins.toArray().map(
-      func(p : Principal) : Text { p.toText() }
-    );
   };
 
   // User Profile Management
@@ -90,7 +79,7 @@ actor {
   };
 
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
-    if (caller != user and not persistentAdmins.contains(caller)) {
+    if (caller != user and not _isCallerAdmin(caller)) {
       Runtime.trap("Unauthorized: Can only view your own profile");
     };
     userProfiles.get(user);
@@ -115,7 +104,7 @@ actor {
   };
 
   public shared ({ caller }) func createProperty(input : PropertyInput) : async Property {
-    if (not persistentAdmins.contains(caller)) {
+    if (not _isCallerAdmin(caller)) {
       Runtime.trap("Unauthorized: Admin access required");
     };
 
@@ -134,11 +123,8 @@ actor {
     property;
   };
 
-  public shared ({ caller }) func updateProperty(
-    id : Nat,
-    input : PropertyInput,
-  ) : async Property {
-    if (not persistentAdmins.contains(caller)) {
+  public shared ({ caller }) func updateProperty(id : Nat, input : PropertyInput) : async Property {
+    if (not _isCallerAdmin(caller)) {
       Runtime.trap("Unauthorized: Admin access required");
     };
 
@@ -163,7 +149,7 @@ actor {
   };
 
   public shared ({ caller }) func deleteProperty(id : Nat) : async () {
-    if (not persistentAdmins.contains(caller)) {
+    if (not _isCallerAdmin(caller)) {
       Runtime.trap("Unauthorized: Admin access required");
     };
 

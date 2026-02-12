@@ -4,6 +4,7 @@ import { businessInfo } from '../../data/siteData';
 import { useInternetIdentity } from '../../hooks/useInternetIdentity';
 import { useIsCallerAdmin } from '../../hooks/useQueries';
 import ContactBar from './ContactBar';
+import AdminStatusIndicator from '../auth/AdminStatusIndicator';
 
 export default function Header() {
   const router = useRouterState();
@@ -63,6 +64,7 @@ export default function Header() {
                 Admin
               </Link>
             )}
+            <AdminStatusIndicator />
           </nav>
 
           <div className="hidden lg:block">
@@ -71,7 +73,7 @@ export default function Header() {
         </div>
 
         <div className="block border-t border-border/40 py-2 md:hidden">
-          <nav className="flex items-center justify-center gap-6">
+          <nav className="flex items-center justify-center gap-4">
             <Link
               to="/"
               className={`text-sm font-medium transition-colors hover:text-primary ${
@@ -106,6 +108,7 @@ export default function Header() {
                 Admin
               </Link>
             )}
+            <AdminStatusIndicator />
           </nav>
         </div>
       </div>

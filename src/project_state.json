@@ -1,30 +1,81 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
-  "summary": "Project to implement a minimal backend admin system with an admin list, including adding a specified principal ID as an admin.",
+  "projectStateVersion": 5,
+  "summary": "New project",
   "architectural_notes": [
-    "Backend maintains an admin allowlist (principal IDs) used for admin authorization checks."
+    "Admin system should allow the specified principal ID and any current admin to add/remove other admins (admin self-management).",
+    "Draft and live deployments are separate canisters with separate persisted admin allowlists; updating admins in draft does not affect live unless redeployed or changed directly in live."
   ],
-  "known_issues": [],
-  "isFixRequest": false,
-  "existing_features": [],
+  "known_issues": [
+    "Build/deploy pipeline is failing to complete, preventing the seeded admin principal from being applied to live/draft.",
+    "User reports not having admin privileges in live despite expecting the seeded principal to be recognized as admin; likely due to failed deploy or missing seed in live canister state."
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-complete-the-existing-frontend-deployment-retry-md-so-it-contains-an-end-to-end-copy-paste-ready-procedure-to-retry-a-full-build-and-redeploy-to-both-draft-and-live-including-a-final-verification-checklist-to-confirm-the-bootstrap-admin-principal-is-recognized-as-admin-after-deployment",
+      "title": "Complete the existing `frontend/DEPLOYMENT_RETRY.md` so it contains an end-to-end, copy/paste-ready procedure to retry a full build and redeploy to BOTH draft and live, including a final verification checklist to confirm the bootstrap admin principal is recognized as admin after deployment.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-small-always-available-ui-indicator-that-shows-whether-the-currently-logged-in-user-is-an-admin-with-a-manual-refresh-control-that-re-checks-admin-status-without-requiring-navigation-to-the-admin-page",
+      "title": "Add a small, always-available UI indicator that shows whether the currently logged-in user is an admin, with a manual refresh control that re-checks admin status without requiring navigation to the Admin page.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    }
+  ],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Create a minimal backend admin system and add principal ID fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe to the backend admin list.",
+      "summary": "Implement admin management permissions so the specified principal and all admins can add and remove any admin",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Add the Principal ID `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` to the backend’s admin principal list in an additive way (do not remove or replace any existing admins), so that this principal is treated as an admin by backend admin checks.",
+      "summary": "Seed the Principal ID `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` into the backend persistent admin allowlist in an additive way (do not remove or replace any existing admins), so that this principal is treated as an admin by all backend admin checks after deployment/upgrade.",
       "reqIds": [
         "REQ-1"
       ],
       "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Ensure backend admin management permissions match the requested policy: any caller who is currently an admin can grant admin to any principal and revoke admin from any principal (i.e., admin management is not restricted to a single owner/admin).",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Add or expose a backend `isCallerAdmin()` method used by the frontend to check whether the authenticated caller is an admin, returning a boolean without trapping for authenticated callers.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Persist the admin allowlist across canister upgrades so that admins granted in production remain admins after future deployments (implement stable storage and conditional migration if required by the existing state).",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Add a small UI control that displays whether the currently logged-in user is an admin (optionally with a manual refresh/re-check action).",
+      "reqIds": [],
+      "status": "pending"
     }
   ],
-  "projectName": "Add provided Principal ID to backend admin list",
+  "projectName": "Allow all admins to grant/revoke admins and seed the specified bootstrap admin principal",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

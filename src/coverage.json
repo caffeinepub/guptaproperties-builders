@@ -1,34 +1,49 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-11T13:19:17.135Z",
+  "generatedAt": "2026-02-12T10:27:27.400Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 0,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-1",
-        "summary": "Add the Principal ID `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` to the backend’s admin principal list in an additive way (do not remove or replace any existing admins), so that this principal is treated as an admin by backend admin checks.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "id": "REQ-5",
+        "summary": "Complete the existing `frontend/DEPLOYMENT_RETRY.md` so it contains an end-to-end, copy/paste-ready procedure to retry a full build and redeploy to BOTH draft and live, including a final verification checklist to confirm the bootstrap admin principal is recognized as admin after deployment.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/DEPLOYMENT_RETRY.md"
+        ],
+        "matchedFiles": [
+          "frontend/DEPLOYMENT_RETRY.md"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Add a small, always-available UI indicator that shows whether the currently logged-in user is an admin, with a manual refresh control that re-checks admin status without requiring navigation to the Admin page.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/auth/AdminStatusIndicator.tsx",
+          "frontend/src/components/layout/Header.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/auth/AdminStatusIndicator.tsx",
+          "frontend/src/components/layout/Header.tsx"
+        ]
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
+    "frontend/DEPLOYMENT_RETRY.md",
+    "frontend/src/components/auth/AdminStatusIndicator.tsx",
+    "frontend/src/components/layout/Header.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -1,47 +1,67 @@
 {
   "kind": "build_request",
-  "title": "Add provided Principal ID to backend admin list",
+  "title": "Improve deployment retry guidance and add a global admin-status indicator",
   "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Add the Principal ID `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe` to the backend’s admin principal list in an additive way (do not remove or replace any existing admins), so that this principal is treated as an admin by backend admin checks.",
-      "target": "backend",
+      "id": "REQ-5",
+      "text": "Complete the existing `frontend/DEPLOYMENT_RETRY.md` so it contains an end-to-end, copy/paste-ready procedure to retry a full build and redeploy to BOTH draft and live, including a final verification checklist to confirm the bootstrap admin principal is recognized as admin after deployment.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-2",
+          "msg-14",
+          "msg-18"
         ],
         "quotes": [
-          "add this principal id in backend admin list fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe"
+          "try again until you get successfull",
+          "retry the full build + redeploy to LIVE with your principal seeded as an admin and the admin list be updated additively, keeping all existing admins and deploy both draft and live",
+          "try agannn",
+          "yes"
         ]
       },
       "acceptanceCriteria": [
-        "After deployment/upgrade, backend admin-gated methods (e.g., `grantAdmin`, `revokeAdmin`, `getAdminsList`, `createProperty`) authorize calls made by principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe`.",
-        "Calling `getAdminsList()` as an admin returns an array that includes the text form of `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe`.",
-        "Any pre-existing admins (if present) remain admins after the change (no removals/replacements)."
+        "`frontend/DEPLOYMENT_RETRY.md` is no longer truncated and includes concrete steps for: clean install/build, deploying canisters, deploying the frontend, and performing the same procedure for both draft and live environments.",
+        "The doc includes a verification section that instructs how to confirm admin access using the existing Admin Panel diagnostics UI and the bootstrap principal `fxms2-qslpu-4ybaz-kouy4-mpule-mqqq5-7grvy-gyikf-o6pvz-zqvgd-hqe`.",
+        "All user-facing text in the doc is in English."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Add a small, always-available UI indicator that shows whether the currently logged-in user is an admin, with a manual refresh control that re-checks admin status without requiring navigation to the Admin page.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2",
+          "msg-18"
+        ],
+        "quotes": [
+          "retry the full build + redeploy to LIVE with your principal seeded as an admin and the admin list be updated additively, keeping all existing admins and deploy both draft and live",
+          "yes"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When a user is authenticated, the app shows an admin-status indicator (e.g., \"Admin\" vs \"Not admin\") in a global location (such as the header) across pages.",
+        "The indicator uses the existing `useIsCallerAdmin()` query and includes a refresh action that triggers a refetch (or invalidation + refetch) and updates the display accordingly.",
+        "When the user is not authenticated, the indicator is hidden or shows an unauthenticated state without throwing errors.",
+        "All user-facing text is in English.",
+        "No edits are made to any frontend immutable paths listed in SYSTEM_CONTEXT."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor (all logic in `backend/main.mo`).",
-    "Use English for any user-facing text."
+    "Backend must remain a single Motoko actor in `backend/main.mo` (no additional backend services).",
+    "Do not modify any files under `frontend/src/components/ui` or any other paths listed in `frontend.immutablePaths` in SYSTEM_CONTEXT.",
+    "Use English for all user-facing text."
   ],
   "nonGoals": [
-    "Do not redesign or change the frontend admin UI as part of this request.",
-    "Do not introduce non-Internet Identity authentication or third-party auth providers."
+    "Implementing new deployment infrastructure/CI services outside the repository.",
+    "Adding third-party auth providers or non-Internet-Identity authentication.",
+    "Adding real-time features (websockets/push notifications)."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

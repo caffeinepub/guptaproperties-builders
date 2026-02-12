@@ -43,13 +43,11 @@ export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     createProperty(input: PropertyInput): Promise<Property>;
     deleteProperty(id: bigint): Promise<void>;
-    getAdminsList(): Promise<Array<string>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getProperty(_id: bigint): Promise<Property | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     grantAdmin(user: Principal): Promise<void>;
-    initializePersistentAdmin(admin: Principal): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
     listProperties(): Promise<Array<Property>>;
     revokeAdmin(user: Principal): Promise<void>;

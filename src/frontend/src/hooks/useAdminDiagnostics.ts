@@ -15,8 +15,9 @@ export interface AdminDiagnostics {
 
 /**
  * Hook to fetch admin diagnostics from the backend for troubleshooting.
- * Returns the backend-reported caller principal, admin list, admin status,
+ * Returns the backend-reported caller principal, admin status,
  * and frontend environment context for cross-deployment verification.
+ * Note: Admin list is unavailable as the backend does not expose a listAdmins method.
  * Automatically refetches when invalidated by admin grant/revoke mutations.
  */
 export function useAdminDiagnostics() {
@@ -49,28 +50,10 @@ export function useAdminDiagnostics() {
           }
         }
 
-        // Fetch admin list from backend
-        let adminList: string[] = [];
-        let adminListStatus: 'loaded' | 'empty' | 'unauthorized' | 'unavailable' = 'unavailable';
-        
-        try {
-          if (typeof actor.getAdminsList === 'function') {
-            const list = await actor.getAdminsList();
-            adminList = list || [];
-            adminListStatus = adminList.length > 0 ? 'loaded' : 'empty';
-          } else {
-            adminListStatus = 'unavailable';
-          }
-        } catch (error: any) {
-          // Handle unauthorized access gracefully
-          if (error.message?.includes('Unauthorized') || error.message?.includes('Admin access required')) {
-            adminListStatus = 'unauthorized';
-          } else {
-            // Log but don't throw - allow diagnostics to render with other info
-            console.warn('Failed to fetch admin list:', error);
-            adminListStatus = 'unavailable';
-          }
-        }
+        // Admin list is not available from backend
+        // The backend does not expose a listAdmins or getAdminsList method
+        const adminList: string[] = [];
+        const adminListStatus: 'loaded' | 'empty' | 'unauthorized' | 'unavailable' = 'unavailable';
 
         // Derive environment label from hostname
         const host = window.location.host;

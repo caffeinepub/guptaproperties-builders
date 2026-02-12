@@ -1,4 +1,46 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-complete-the-existing-frontend-deployment-retry-md-so-it-contains-an-end-to-end-copy-paste-ready-procedure-to-retry-a-full-build-and-redeploy-to-both-draft-and-live-including-a-final-verification-checklist-to-confirm-the-bootstrap-admin-principal-is-recognized-as-admin-after-deployment",
+      "featureTitle": "Complete the existing `frontend/DEPLOYMENT_RETRY.md` so it contains an end-to-end, copy/paste-ready procedure to retry a full build and redeploy to BOTH draft and live, including a final verification checklist to confirm the bootstrap admin principal is recognized as admin after deployment.",
+      "files": [
+        "frontend/DEPLOYMENT_RETRY.md"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-small-always-available-ui-indicator-that-shows-whether-the-currently-logged-in-user-is-an-admin-with-a-manual-refresh-control-that-re-checks-admin-status-without-requiring-navigation-to-the-admin-page",
+      "featureTitle": "Add a small, always-available UI indicator that shows whether the currently logged-in user is an admin, with a manual refresh control that re-checks admin status without requiring navigation to the Admin page.",
+      "files": [
+        "frontend/src/components/auth/AdminStatusIndicator.tsx",
+        "frontend/src/components/layout/Header.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0",
+        "blob-storage@4.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    }
+  ]
 }
